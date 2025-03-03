@@ -1,0 +1,26 @@
+{
+  "version": 0.1,
+  "setting_list": [
+    {
+      "name": "plantuml",
+      "value": "plantuml -svg --charset UTF-8",
+      "type": "input",
+      "select": "",
+      "description": "PlantUMLコマンド"
+    },
+    {
+      "name": "editor",
+      "value": "code",
+      "type": "input",
+      "select": "",
+      "description": "UMLを開くエディタ"
+    },
+    {
+      "name": "exclude_path",
+      "value": "(/test/)",
+      "type": "input",
+      "select": "",
+      "description": "除外するパス（正規表現）"
+    }
+  ]
+}
