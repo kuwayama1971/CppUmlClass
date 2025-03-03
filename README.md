@@ -23,7 +23,8 @@ If bundler is not being used to manage dependencies, install the gem by executin
 ## Usage
 
     $ start_cpp_uml_class.rb
-
+    
+![CppUmlClass](https://github.com/kuwayama1971/CppUmlClass/raw/refs/heads/main/img/CppUMLClass.mp4)
 
 ## Development
 
