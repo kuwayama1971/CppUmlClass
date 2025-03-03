@@ -1,5 +1,6 @@
 require "json"
 require "kconv"
+require "pathname"
 
 class Search < Sinatra::Base
   helpers Sinatra::Streaming
@@ -46,7 +47,14 @@ class Search < Sinatra::Base
     puts path
     Dir.glob(path, File::FNM_DOTMATCH).each do |file|
       data = {}
-      next if File.basename(file) == "."
+      if File.basename(file) == "."
+        path = Pathname(File.expand_path(file))
+        data["label"] = ".."
+        data["label"] += "/" if path.parent == "/"
+        data["value"] = path.parent.to_s
+        res.push data
+        next
+      end
       next if kind == "dir" and !File.directory?(file)
       data["label"] = File.basename(file)
       data["label"] += "/" if (File.directory?(file))

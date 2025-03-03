@@ -14,7 +14,7 @@ Dir.mktmpdir { |tmpdir|
   FileUtils.mkdir_p outdir
   FileUtils.mkdir_p home_dir
   puts outdir
-  Dir.glob("#{dir}/lib/*") do |f|
+  Dir.glob("#{dir}/lib/*", File::FNM_DOTMATCH) do |f|
     if f =~ /config$/
       # configはhomeにコピー
       if !File.exist? "#{home_dir}/config"
