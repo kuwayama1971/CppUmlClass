@@ -120,11 +120,11 @@ def print_uml(out, out_list)
       out.push "}"
       # 継承リストの出力
       o_list.inherit_list.each do |ih|
-        out.push "#{o_list.name} --|> #{ih}"
+        out.push "#{o_list.name} -[#blue]-|> #{ih}"
       end
       # compo
       o_list.composition_list.uniq.each do |co|
-        out.push "#{o_list.name} *-- #{co}"
+        out.push "#{o_list.name} *-[#green]- #{co}"
       end
     elsif o_list.type == :module_end
       # インスタンス変数がある場合はモジュール名と同じクラスを定義
@@ -145,11 +145,11 @@ def print_uml(out, out_list)
         out.push "}"
         # 継承リストの出力
         o_list.inherit_list.each do |ih|
-          out.push "#{o_list.name} --|> #{ih}"
+          out.push "#{o_list.name} -[#blue]-|> #{ih}"
         end
         # compo
         o_list.composition_list.uniq.each do |co|
-          out.push "#{o_list.name} *-- #{co}"
+          out.push "#{o_list.name} *-[#green]- #{co}"
         end
       end
       out.push "}"
