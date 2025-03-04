@@ -4,7 +4,11 @@ CppUmlClass creates a C++ class diagram.
 PlantUML and rufo commands are used to create class diagrams.  
 The created class diagram is displayed on the browser screen.  
 
-## Setup
+## ruby setup
+    for ubuntu
+    $ sudo apt install ruby ruby-all-dev
+    
+## CppUmlClass Setup
     for ubuntu
     $ sudo apt install chromium-browser
     $ sudo apt install plantuml
@@ -19,7 +23,7 @@ Install the gem and add to the application's Gemfile by executing:
 
 If bundler is not being used to manage dependencies, install the gem by executing:
 
-    $ gem install CppUmlClass
+    $ sudo gem install CppUmlClass
 
 ## Usage
 
