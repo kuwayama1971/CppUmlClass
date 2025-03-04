@@ -6,6 +6,7 @@ The created class diagram is displayed on the browser screen.
 
 ## Setup
     for ubuntu
+    $ sudo apt install chromium-browser
     $ sudo apt install plantuml
     $ sudo apt install clang-format
     $ sudo apt install gcc
@@ -14,11 +15,11 @@ The created class diagram is displayed on the browser screen.
 
 Install the gem and add to the application's Gemfile by executing:
 
-    $ bundle add cpp_uml_class
+    $ bundle add CppUmlClass
 
 If bundler is not being used to manage dependencies, install the gem by executing:
 
-    $ gem install cpp_uml_class
+    $ gem install CppUmlClass
 
 ## Usage
 
@@ -32,7 +33,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/kuwayama1971/RubyUmlClass.
+Bug reports and pull requests are welcome on GitHub at https://github.com/kuwayama1971/CppUmlClass.
 
 ## License
 
