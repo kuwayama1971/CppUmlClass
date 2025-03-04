@@ -194,8 +194,8 @@ def composition_list_create(in_dir, out_list)
         next if line =~ /;$/
         work = line.gsub(/(class|struct)/, "")
         class_name = work.split(" : ")[0].to_s.chomp.match(/ [A-Za-z0-9_:]+/).to_s.split(" ")[0]
-        base_name = work.split(" : ")[1].to_s.split(" ")[1].to_s.gsub(/<.*>/, "")
-        puts "start class #{class_name}"
+        #base_name = work.split(" : ")[1].to_s.split(" ")[1].to_s.gsub(/<.*>/, "")
+        #puts "start class #{class_name}"
         cstruct_list.push CStruct.new(:class_end, class_name, block_count, [], [], [], [])
       end
 
@@ -301,7 +301,10 @@ def create_uml_class(in_dir, out_file)
         next if line =~ /;$/
         work = line.gsub(/(class|struct)/, "")
         class_name = work.split(" : ")[0].to_s.chomp.match(/ [A-Za-z0-9_:]+/).to_s.split(" ")[0]
-        base_name = work.split(" : ")[1].to_s.gsub(/(public |private |protected )/, "").to_s.gsub(/<.*>/, "").split(" ")[0]
+        base_name = []
+        work.split(" : ")[1].to_s.gsub(/(public |private |protected )/, "").to_s.gsub(/<.*>/, "").split(" ").each do |name|
+          base_name.push name if name =~ /\w+/
+        end
         puts "start class [#{class_name}]"
         if class_name == ""
           puts file
@@ -316,10 +319,10 @@ def create_uml_class(in_dir, out_file)
         cstruct_list.push CStruct.new(:class_end, class_name, block_count, [], [], [], [])
         #end
         #pp line if class_name == ""
-        if base_name.to_s != ""
-          #base_name.gsub!(/::/, ".")
-          puts "base_name=#{base_name}"
-          cstruct_list[-1].inherit_list.push base_name
+        base_name.each do |name|
+          name.gsub!(/,/, "")
+          puts "base_name=#{name}"
+          cstruct_list[-1].inherit_list.push name
         end
       end
 
