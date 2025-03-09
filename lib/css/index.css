@@ -2,7 +2,7 @@ body {
     color: #000000;
     background-color: #cac3ec4f;
     overflow: hidden;
-    font-size: 12px;
+    font-size: 14px;
 }
 
 hr {
@@ -49,7 +49,7 @@ textarea.long {
 }
 
 .ui-widget {
-    font-size: 12px;
+    font-size: 14px;
 }
 
 .ui-autocomplete {
@@ -88,25 +88,29 @@ textarea.long {
 }
 
 #setting_dialog {
-    color: #796fe9;
+    color: #ffffff;
     background-color: #000000;
+    font-size: 14px;
 }
 
 .setting_name {
     width: 200px;
-    color: #796fe9;
+    color: #ffffff;
     background-color: #000000;
+    font-size: 14px;
 }
 
 .setting_value {
     width: 300px;
-    color: #796fe9;
+    color: #ffffff;
     background-color: #000000;
+    font-size: 14px;
 }
 
 .setting_checkbox {
-    color: #796fe9;
+    color: #ffffff;
     background-color: #000000;
+    font-size: 14px;
 }
 
 ul.log {
@@ -130,7 +134,7 @@ input[type="search"]::-webkit-search-cancel-button {
     list-style-type: none;
     color: #393737;
     padding: 0;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: bold;
 }
 

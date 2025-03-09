@@ -120,11 +120,11 @@ def print_uml(out, out_list)
       out.push "}"
       # 継承リストの出力
       o_list.inherit_list.each do |ih|
-        out.push "#{o_list.name} -[#blue]-|> #{ih}"
+        out.push "#{o_list.name} -[#blue]--|> #{ih}"
       end
       # compo
       o_list.composition_list.uniq.each do |co|
-        out.push "#{o_list.name} *-[#green]- #{co}"
+        out.push "#{o_list.name} *-[#green]-- #{co}"
       end
     elsif o_list.type == :module_end
       # インスタンス変数がある場合はモジュール名と同じクラスを定義
@@ -145,11 +145,11 @@ def print_uml(out, out_list)
         out.push "}"
         # 継承リストの出力
         o_list.inherit_list.each do |ih|
-          out.push "#{o_list.name} -[#blue]-|> #{ih}"
+          out.push "#{o_list.name} -[#blue]--|> #{ih}"
         end
         # compo
         o_list.composition_list.uniq.each do |co|
-          out.push "#{o_list.name} *-[#green]- #{co}"
+          out.push "#{o_list.name} *-[#green]-- #{co}"
         end
       end
       out.push "}"
@@ -163,12 +163,12 @@ end
 
 def composition_list_create(in_dir, out_list)
   # composition_list
-  Dir.glob("#{in_dir}/**/*.{cpp,hpp}") do |file|
-    if file =~ Regexp.new(@config["exclude_path"])
-      puts "skip #{file}"
+  Dir.glob("#{in_dir}/**/*.{h,cpp,hpp}") do |file|
+    if @config["exclude_path"].to_s != "" and file =~ Regexp.new(@config["exclude_path"])
+      #puts "skip #{file}"
       next
     end
-    puts file
+    #puts file
     # ソースコードの整形
     buf = update_source(file)
     # ソースを解析
@@ -177,7 +177,7 @@ def composition_list_create(in_dir, out_list)
     buf.each_line do |line|
       next if line =~ /^[\r\n]*$/  # 空行は対象外
       next if line =~ /^#/ # #から始まる行は対象外
-      puts line
+      #puts "comp:#{line}"
 
       # ブロックの開始/終了
       if line.match(/\{/)
@@ -186,7 +186,7 @@ def composition_list_create(in_dir, out_list)
       if line.match(/\}/)
         block_count -= 1
       end
-      puts "block_count=#{block_count}"
+      #puts "comp:block_count=#{block_count}"
 
       # classの開始
       #if line =~ /^\s*(class)\s/ and File.extname(file) == ".h"
@@ -196,20 +196,21 @@ def composition_list_create(in_dir, out_list)
         class_name = work.split(" : ")[0].to_s.chomp.match(/ [A-Za-z0-9_:]+/).to_s.split(" ")[0]
         #base_name = work.split(" : ")[1].to_s.split(" ")[1].to_s.gsub(/<.*>/, "")
         #puts "start class #{class_name}"
-        cstruct_list.push CStruct.new(:class_end, class_name, block_count, [], [], [], [])
+        if class_name.to_s != ""
+          cstruct_list.push CStruct.new(:class_end, class_name, block_count, [], [], [], [])
+        end
       end
-
       # 関数の開始
       #if line =~ /^\S+::\S+/
       if line.gsub(/<.*>/, "") =~ /^\S.*(\S+)::(\S+).*\(.*{$/ and
          (File.extname(file) == ".cpp" or File.extname(file) == ".hpp")
-        puts "method start"
+        #puts "comp:method start"
         #class_name = line.match(/(\w+)(?=<\w*,?\s*\w*>?::\w+\(\))/).to_s
         #class_name = line.match(/(\w+)(?=::\S+\(\))/).to_s if class_name == ""
         #class_name = line.match(/(\w+(?:::\w+)*)(?=::\w+\(.*\))/).to_s if class_name == ""
         #class_name = class_name.split("::")[1] if class_name =~ /::/
         line.gsub(/<.*>/, "").match(/(\w+)(?=\S+\()/) do |m|
-          puts "class_name=#{m}"
+          #puts "comp:class_name=#{m}"
           cstruct_list.push CStruct.new(:method_start, m.to_s, block_count, [], [], [], [])
           break
         end
@@ -225,10 +226,10 @@ def composition_list_create(in_dir, out_list)
         class_block_count = cstruct_list[-1].block_count
         if block_count == (class_block_count - 1) # block_countが一致
           # 関数の終了
-          puts "method end #{cstruct_list[-1].name}"
+          #puts "comp:method end #{cstruct_list[-1].name}"
           cstruct_list.slice!(-1) # 最後の要素を削除
         else
-          puts "#{File.basename(file)}:#{block_count}:line3=#{line}"
+          #puts "comp:#{File.basename(file)}:#{block_count}:line3=#{line}"
           my_class_name = cstruct_list[-1].name
           my_cstruct = out_list.select { |m| m.name == my_class_name }[1]
           #pp my_cstruct
@@ -237,7 +238,7 @@ def composition_list_create(in_dir, out_list)
             out_list.each do |clist|
               next if clist.name == my_cstruct.name
               use_class_name = clist.name
-              puts "my_class_name=#{my_class_name} : use_class_name=#{use_class_name}"
+              #puts "my_class_name=#{my_class_name} : use_class_name=#{use_class_name}"
               if check_word(line, use_class_name)
                 #if line.include?(use_class_name)
                 my_cstruct.composition_list.push use_class_name
@@ -256,7 +257,7 @@ def create_uml_class(in_dir, out_file)
   out = []
   out.push "@startuml"
 
-  puts "in_dir = #{in_dir}"
+  #puts "in_dir = #{in_dir}"
   main_composition_list = []
   main_method_list = []
   global_var = []
@@ -264,11 +265,11 @@ def create_uml_class(in_dir, out_file)
   out_list = []
   #Dir.glob("#{in_dir}/**/*.{cpp,hpp,h}") do |file|
   Dir.glob("#{in_dir}/**/*.{h}") do |file|
-    if file =~ Regexp.new(@config["exclude_path"])
-      puts "skip #{file}"
+    if @config["exclude_path"].to_s != "" and file =~ Regexp.new(@config["exclude_path"])
+      #puts "skip #{file}"
       next
     end
-    puts file
+    #puts file
     # ソースコードの整形
     buf = update_source(file)
 
@@ -280,7 +281,7 @@ def create_uml_class(in_dir, out_file)
     buf.each_line do |line|
       next if line =~ /^[\r\n]*$/  # 空行は対象外
       next if line =~ /^#/ # #から始まる行は対象外
-      puts line
+      #puts line
 
       # ブロックの開始/終了
       if line.match(/\{/)
@@ -292,8 +293,11 @@ def create_uml_class(in_dir, out_file)
       # ブロックの終了
       if line.match(/\}/)
         block_count -= line.each_char.select { |c| c == "}" }.size
+        end_block = true
+      else
+        end_block = false
       end
-      puts "block_count=#{block_count}"
+      #puts "block_count=#{block_count}"
 
       # classの開始
       #if line =~ /^\s*(class)\s/
@@ -305,10 +309,10 @@ def create_uml_class(in_dir, out_file)
         work.split(" : ")[1].to_s.gsub(/(public |private |protected )/, "").to_s.gsub(/<.*>/, "").split(" ").each do |name|
           base_name.push name if name =~ /\w+/
         end
-        puts "start class [#{class_name}]"
-        if class_name == ""
+        #puts "start class [#{class_name}]"
+        if class_name.to_s == ""
           puts file
-          exit
+          next
         end
         #if out_list.size != 0 and out_list[-1].type == :class_start # classが連続している
         #  class_name = out_list[-1].name + "." + class_name
@@ -321,7 +325,7 @@ def create_uml_class(in_dir, out_file)
         #pp line if class_name == ""
         base_name.each do |name|
           name.gsub!(/,/, "")
-          puts "base_name=#{name}"
+          #puts "base_name=#{name}"
           cstruct_list[-1].inherit_list.push name
         end
       end
@@ -342,7 +346,7 @@ def create_uml_class(in_dir, out_file)
           # 関数名を取り出す
           method = line.split(" : ")[0].gsub(/^\s+/, "")
           method = method.split(";")[0].split("{")[0]
-          puts "method=#{method}"
+          #puts "method=#{method}"
           method_list = cstruct_list[-1].method_list
           case method_type
           when :public
@@ -357,7 +361,9 @@ def create_uml_class(in_dir, out_file)
 
       # class変数
       # 括弧を含まない、かつtemplateを含まない文字列
-      if cstruct_list.size != 0 and block_count == cstruct_list[-1].block_count
+      if cstruct_list.size != 0 and
+         (block_count == cstruct_list[-1].block_count or
+          (end_block == true and block_count + 1 == cstruct_list[-1].block_count))
         if line =~ /^[^(){}]*$/ and
            line =~ /^((?!\/tmp\/).)*$/ and
            line =~ /^((?!namespace).)*$/ and
@@ -365,7 +371,7 @@ def create_uml_class(in_dir, out_file)
            line =~ /^((?!public:).)*$/ and
            line =~ /^((?!private:).)*$/ and
            line =~ /^((?!protected:).)*$/
-          puts "class member=#{line}"
+          #puts "class member=#{line}"
           #val = line.split("=")[0].split(" ")[-1]
           val = line.split("=")[0]
           val = val.split(";")[0]
@@ -385,7 +391,7 @@ def create_uml_class(in_dir, out_file)
       if cstruct_list.size != 0
         class_block_count = cstruct_list[-1].block_count
         if block_count == (class_block_count - 1) # block_countが一致
-          puts "class end #{cstruct_list[-1].name}"
+          #puts "class end #{cstruct_list[-1].name}"
           out_list.push cstruct_list[-1]
           cstruct_list.slice!(-1) # 最後の要素を削除
         end
@@ -425,7 +431,7 @@ def create_uml_class(in_dir, out_file)
 end
 
 def search_func(file)
-  puts file
+  #puts file
   # ソースコードの整形
   buf = update_source(file)
   # ソースを解析
@@ -434,9 +440,9 @@ def search_func(file)
     next if line =~ /^#/ # #から始まる行は対象外
     #puts line
     if line.gsub(/<.*>/, "") =~ /^\S.*(\S+)::(\S+).*\(.*{$/
-      puts line.gsub!(/<.*>/, "")
+      #puts line.gsub!(/<.*>/, "")
       line.match(/(\w+)(?=\S+\()/) do |m|
-        puts "class_name=#{m}"
+        #puts "class_name=#{m}"
       end
     end
   end
