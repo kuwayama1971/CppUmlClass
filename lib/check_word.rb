@@ -14,6 +14,10 @@ def check_word(buf, check_word)
 end
 
 if $0 == __FILE__
-  buf = File.read(ARGV[0])
-  check_word(buf, ARGV[1])
+  File.read(ARGV[0]).each_line do |line|
+    puts line
+    if check_word(line, ARGV[1])
+      puts "ok"
+    end
+  end
 end
