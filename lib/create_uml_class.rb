@@ -181,10 +181,17 @@ def composition_list_create(in_dir, out_list)
 
       # ブロックの開始/終了
       if line.match(/\{/)
-        block_count += 1
+        block_count += line.each_char.select { |c| c == "{" }.size
+        start_block = true
+      else
+        start_block = false
       end
+      # ブロックの終了
       if line.match(/\}/)
-        block_count -= 1
+        block_count -= line.each_char.select { |c| c == "}" }.size
+        end_block = true
+      else
+        end_block = false
       end
       #puts "comp:block_count=#{block_count}"
 
@@ -202,24 +209,13 @@ def composition_list_create(in_dir, out_list)
       end
       # 関数の開始
       #if line =~ /^\S+::\S+/
-      if line.gsub(/<.*>/, "") =~ /^\S.*(\S+)::(\S+).*\(.*{$/ and
+      if line.gsub(/<.*>/, "") =~ /^\S.*(\S+)::(\S+).*\(.*{/ and
          (File.extname(file) == ".cpp" or File.extname(file) == ".hpp")
-        #puts "comp:method start"
-        #class_name = line.match(/(\w+)(?=<\w*,?\s*\w*>?::\w+\(\))/).to_s
-        #class_name = line.match(/(\w+)(?=::\S+\(\))/).to_s if class_name == ""
-        #class_name = line.match(/(\w+(?:::\w+)*)(?=::\w+\(.*\))/).to_s if class_name == ""
-        #class_name = class_name.split("::")[1] if class_name =~ /::/
         line.gsub(/<.*>/, "").match(/(\w+)(?=\S+\()/) do |m|
           #puts "comp:class_name=#{m}"
           cstruct_list.push CStruct.new(:method_start, m.to_s, block_count, [], [], [], [])
           break
         end
-
-        #puts "class_name=[#{class_name}]"
-        #if class_name != ""
-        #  cstruct_list.push CStruct.new(:method_start, class_name, block_count, [], [], [], [])
-        #  next
-        #end
       end
 
       if cstruct_list.size != 0
@@ -230,6 +226,7 @@ def composition_list_create(in_dir, out_list)
           cstruct_list.slice!(-1) # 最後の要素を削除
         else
           #puts "comp:#{File.basename(file)}:#{block_count}:line3=#{line}"
+          #puts "#{start_block} : #{end_block}"
           my_class_name = cstruct_list[-1].name
           my_cstruct = out_list.select { |m| m.name == my_class_name }[1]
           #pp my_cstruct
@@ -244,6 +241,10 @@ def composition_list_create(in_dir, out_list)
                 my_cstruct.composition_list.push use_class_name
               end
             end
+          end
+          if start_block and end_block # 1行関数
+            cstruct_list.slice!(-1) # 最後の要素を削除
+            #puts "cstruct size=#{cstruct_list.size}"
           end
         end
       end
@@ -314,15 +315,8 @@ def create_uml_class(in_dir, out_file)
           puts file
           next
         end
-        #if out_list.size != 0 and out_list[-1].type == :class_start # classが連続している
-        #  class_name = out_list[-1].name + "." + class_name
-        #  out_list[-1].name = class_name
-        #  cstruct_list[-1].name = class_name
-        #else
         out_list.push CStruct.new(:class_start, class_name, block_count, [], [], [], [])
         cstruct_list.push CStruct.new(:class_end, class_name, block_count, [], [], [], [])
-        #end
-        #pp line if class_name == ""
         base_name.each do |name|
           name.gsub!(/,/, "")
           #puts "base_name=#{name}"
@@ -453,7 +447,7 @@ if $0 == __FILE__
   #exit
   #buf = update_source(ARGV[0])
   #puts buf
-  @config = { "exclude_path" => "test" }
+  @config = { "exclude_path" => "" }
 
   if true
     puts create_uml_class(ARGV[0], ARGV[1])
