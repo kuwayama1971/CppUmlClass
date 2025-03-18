@@ -47,18 +47,21 @@ class Search < Sinatra::Base
     puts path
     Dir.glob(path, File::FNM_DOTMATCH).each do |file|
       data = {}
-      if File.basename(file) == "."
-        path = Pathname(File.expand_path(file))
-        data["label"] = ".."
-        data["label"] += "/" if path.parent == "/"
-        data["value"] = path.parent.to_s
-        res.push data
-        next
-      end
+      next if File.basename(file) == "."
       next if kind == "dir" and !File.directory?(file)
       data["label"] = File.basename(file)
       data["label"] += "/" if (File.directory?(file))
       data["value"] = File.expand_path(file)
+      res.push data
+    end
+    if 0 == res.select { |dir| dir["label"] == "../" }.size
+      data = {}
+      pp = Pathname(File.expand_path("#{dir}/#{file}"))
+      data["label"] = "../"
+      data["label"] += "/" if pp.parent == "/"
+      data["value"] = pp.parent.to_s
+      data["value"] = "/" if data["value"] =~ /^[\/]+$/
+      #puts "value = #{pp.parent.to_s}"
       res.push data
     end
     JSON.generate res.sort { |a, b| a["value"] <=> b["value"] }
