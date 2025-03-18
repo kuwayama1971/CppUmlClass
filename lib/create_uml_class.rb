@@ -220,12 +220,12 @@ def composition_list_create(in_dir, out_list)
 
       if cstruct_list.size != 0
         class_block_count = cstruct_list[-1].block_count
+        #puts "comp:#{File.basename(file)}:#{block_count}:line3=#{line}"
         if block_count == (class_block_count - 1) # block_countが一致
           # 関数の終了
-          #puts "comp:method end #{cstruct_list[-1].name}"
+          #puts "comp:#{File.basename(file)}:comp:method end #{cstruct_list[-1].name}"
           cstruct_list.slice!(-1) # 最後の要素を削除
         else
-          #puts "comp:#{File.basename(file)}:#{block_count}:line3=#{line}"
           #puts "#{start_block} : #{end_block}"
           my_class_name = cstruct_list[-1].name
           my_cstruct = out_list.select { |m| m.name == my_class_name }[1]
@@ -243,8 +243,10 @@ def composition_list_create(in_dir, out_list)
             end
           end
           if start_block and end_block # 1行関数
-            cstruct_list.slice!(-1) # 最後の要素を削除
-            #puts "cstruct size=#{cstruct_list.size}"
+            if block_count == (class_block_count - 1) # block_countが一致
+              cstruct_list.slice!(-1) # 最後の要素を削除
+              #puts "comp:#{File.basename(file)}:cstruct size=#{cstruct_list.size}"
+            end
           end
         end
       end
