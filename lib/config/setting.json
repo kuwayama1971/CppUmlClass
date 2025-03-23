@@ -16,8 +16,57 @@
       "description": "UMLを開くエディタ"
     },
     {
+      "name": "default_class_color",
+      "value": "#LightGray",
+      "type": "input",
+      "select": "",
+      "description": "デフォルトのクラス色"
+    },
+    {
+      "name": "class_color_path1",
+      "value": "(path1)",
+      "type": "input",
+      "select": "",
+      "description": "色を付けるクラスのソースパス1（正規表現）"
+    },
+    {
+      "name": "class_color1",
+      "value": "#LightBlue",
+      "type": "input",
+      "select": "",
+      "description": "ソースパスと一致するクラス色1"
+    },
+    {
+      "name": "class_color_path2",
+      "value": "(path2)",
+      "type": "input",
+      "select": "",
+      "description": "色を付けるクラスのソースパス2（正規表現）"
+    },
+    {
+      "name": "class_color2",
+      "value": "#LightGreen",
+      "type": "input",
+      "select": "",
+      "description": "ソースパスと一致するクラス色2"
+    },
+    {
+      "name": "class_color_path3",
+      "value": "(path3)",
+      "type": "input",
+      "select": "",
+      "description": "色を付けるクラスのソースパス3（正規表現）"
+    },
+    {
+      "name": "class_color3",
+      "value": "#orange",
+      "type": "input",
+      "select": "",
+      "description": "ソースパスと一致するクラス色3"
+    },
+    {
       "name": "exclude_path",
-      "value": "(/test/)",
+      "value": "(exclude_path)",
       "type": "input",
       "select": "",
       "description": "除外するパス（正規表現）"
