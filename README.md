@@ -25,11 +25,46 @@ If bundler is not being used to manage dependencies, install the gem by executin
 
     $ sudo gem install CppUmlClass
 
-## Usage
+## Usage(GUI)
+A browser-based GUI opens.
 
     $ start_cpp_uml_class.rb
     
 https://github.com/user-attachments/assets/dfd68556-bf4d-43b7-8fef-b6f951c9147d
+
+## Usage(command line)
+command line interface
+```
+Usage: create_cpp_uml_class.rb [options] cpp_source_directory out_file
+    -c config_file
+```
+config_file defaults to CppUmlClass/config/setting.json in your home directory.
+
+Example
+
+    $ create_cpp_uml_class.rb ~/tool/cpp_test /tmp/test.pu
+
+
+## clsss color support
+
+![class_color](img/class_color.png)
+
+## Setting
+
+- plant uml command
+- editor to open plant uml file
+- default class color 1
+- source path of the class that sets the color 1
+- default class color 2
+- source path of the class that sets the color 2
+- default class color 3
+- source path of the class that sets the color 2
+
+The setting file is saved in the home directory under CppUmlClass/config/setting.json.
+
+![setting](img/setting.png)
+
+
 
 ## Development
 

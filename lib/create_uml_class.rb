@@ -10,7 +10,8 @@ CStruct = Struct.new(:type,
                      :var_list,
                      :method_list,
                      :inherit_list,
-                     :composition_list)
+                     :composition_list,
+                     :class_color)
 
 def get_gcc_path
   kernel = Facter.value(:kernel)
@@ -43,18 +44,20 @@ def get_unifdef_path
 end
 
 def get_clang_format_path
+  dir = File.dirname(File.expand_path(__FILE__)) + "/"
   kernel = Facter.value(:kernel)
   if kernel == "windows"
     ENV["PATH"].split(";").each do |path|
       clang_format_path = "#{path}\\clang-format"
       if File.exists? clang_format_path
-        return "rubyw " + clang_format_path + " --style=file:'.clang-format' "
+        return "rubyw " + clang_format_path + " --style=file:'#{dir}.clang-format' "
       end
     end
     return ""
   else
   end
-  return "clang-format --style=file:'.clang-format' "
+  #puts "clang-format --style=file:'#{dir}.clang-format' "
+  return "clang-format --style=file:'#{dir}.clang-format' "
 end
 
 # ソースコードの整形
@@ -108,7 +111,7 @@ def print_uml(out, out_list)
       out.push "namespace #{o_list.name} {"
     elsif o_list.type == :class_end
       pp o_list if o_list.name == ""
-      out.push "class #{o_list.name} {"
+      out.push "class #{o_list.name} #{o_list.class_color}{"
       # インスタンス変数の出力
       o_list.var_list.uniq.each do |iv|
         out.push iv
@@ -120,11 +123,11 @@ def print_uml(out, out_list)
       out.push "}"
       # 継承リストの出力
       o_list.inherit_list.each do |ih|
-        out.push "#{o_list.name} -[#blue]--|> #{ih}"
+        out.push "#{o_list.name} -[#black]--|> #{ih}"
       end
       # compo
       o_list.composition_list.uniq.each do |co|
-        out.push "#{o_list.name} *-[#green]-- #{co}"
+        out.push "#{o_list.name} *-[#{o_list.class_color}]-- #{co}"
       end
     elsif o_list.type == :module_end
       # インスタンス変数がある場合はモジュール名と同じクラスを定義
@@ -145,11 +148,11 @@ def print_uml(out, out_list)
         out.push "}"
         # 継承リストの出力
         o_list.inherit_list.each do |ih|
-          out.push "#{o_list.name} -[#blue]--|> #{ih}"
+          out.push "#{o_list.name} -[#black]--|> #{ih}"
         end
         # compo
         o_list.composition_list.uniq.each do |co|
-          out.push "#{o_list.name} *-[#green]-- #{co}"
+          out.push "#{o_list.name} *-[#{o_list.class_color}]-- #{co}"
         end
       end
       out.push "}"
@@ -204,7 +207,7 @@ def composition_list_create(in_dir, out_list)
         #base_name = work.split(" : ")[1].to_s.split(" ")[1].to_s.gsub(/<.*>/, "")
         #puts "start class #{class_name}"
         if class_name.to_s != ""
-          cstruct_list.push CStruct.new(:class_end, class_name, block_count, [], [], [], [])
+          cstruct_list.push CStruct.new(:class_start, class_name, block_count, [], [], [], [])
         end
       end
       # 関数の開始
@@ -318,7 +321,16 @@ def create_uml_class(in_dir, out_file)
           next
         end
         out_list.push CStruct.new(:class_start, class_name, block_count, [], [], [], [])
-        cstruct_list.push CStruct.new(:class_end, class_name, block_count, [], [], [], [])
+        if @config["class_color_path1"].to_s != "" and file =~ Regexp.new(@config["class_color_path1"])
+          cstruct_list.push CStruct.new(:class_end, class_name, block_count, [], [], [], [], @config["class_color1"])
+        elsif @config["class_color_path2"].to_s != "" and file =~ Regexp.new(@config["class_color_path2"])
+          cstruct_list.push CStruct.new(:class_end, class_name, block_count, [], [], [], [], @config["class_color2"])
+        elsif @config["class_color_path3"].to_s != "" and file =~ Regexp.new(@config["class_color_path3"])
+          pp file
+          cstruct_list.push CStruct.new(:class_end, class_name, block_count, [], [], [], [], @config["class_color3"])
+        else
+          cstruct_list.push CStruct.new(:class_end, class_name, block_count, [], [], [], [], @config["default_class_color"])
+        end
         base_name.each do |name|
           name.gsub!(/,/, "")
           #puts "base_name=#{name}"
