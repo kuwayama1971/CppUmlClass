@@ -59,6 +59,7 @@ Example
 - source path of the class that sets the color 2
 - default class color 3
 - source path of the class that sets the color 2
+- exclude path    
 
 The setting file is saved in the home directory under CppUmlClass/config/setting.json.
 

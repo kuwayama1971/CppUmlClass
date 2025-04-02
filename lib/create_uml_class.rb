@@ -180,6 +180,7 @@ def composition_list_create(in_dir, out_list)
     buf.each_line do |line|
       next if line =~ /^[\r\n]*$/  # 空行は対象外
       next if line =~ /^#/ # #から始まる行は対象外
+      line.gsub!(/["'].*?["']/, '') # "/'囲まれた文字列を削除
       #puts "comp:#{line}"
 
       # ブロックの開始/終了
@@ -287,6 +288,7 @@ def create_uml_class(in_dir, out_file)
     buf.each_line do |line|
       next if line =~ /^[\r\n]*$/  # 空行は対象外
       next if line =~ /^#/ # #から始まる行は対象外
+      line.gsub!(/["'].*?["']/, '') # "/'囲まれた文字列を削除
       #puts line
 
       # ブロックの開始/終了
@@ -404,7 +406,7 @@ def create_uml_class(in_dir, out_file)
           cstruct_list.slice!(-1) # 最後の要素を削除
         end
       end
-      #puts "#{block_count} #{line.chomp}"
+      puts "#{block_count} #{line.chomp}"
     end
     if block_count != 0
       # エラー
