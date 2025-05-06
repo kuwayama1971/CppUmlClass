@@ -39,69 +39,53 @@ end
 
 def process_ifdef(file_buf, define_hash)
   out_buf = []
-  is_process = true
-  ifdef_count = 0
+  proc_list = [true]
   line_count = 1
+  ifdef_flag = false
   file_buf.each_line do |line|
     line = line.strip
     case line
     when /^#ifdef\s+(.*)/
-      if condition_judge($1, define_hash)
-        is_process = true
-      else
-        is_process = false
-      end
-      ifdef_count += 1
-      puts "#ifdef #{line_count}:#{ifdef_count}:line=[#{line}]:#{$1}"
+      proc_list.push condition_judge($1, define_hash)
+      ifdef_flag = proc_list[-1]
+      puts "#ifdef #{ifdef_flag}:#{line_count}:line=[#{line}]:#{$1}"
     when /^#ifndef\s+(.+)/
-      unless condition_judge($1, define_hash)
-        is_process = false
-      else
-        is_process = true
-      end
-      puts "#ifndef #{line_count}:#{ifdef_count}:line=[#{line}]:#{$1}"
-      ifdef_count += 1
+      proc_list.push !condition_judge($1, define_hash)
+      ifdef_flag = proc_list[-1]
+      puts "#ifndef #{ifdef_flag}:#{line_count}:line=[#{line}]:#{$1}"
     when /^#if\s+(.+)/
-      if condition_judge($1, define_hash)
-        is_process = true
-      else
-        is_process = false
-      end
-      ifdef_count += 1
-      puts "#if #{line_count}:#{ifdef_count}:line=[#{line}]:#{$1}"
+      proc_list.push condition_judge($1, define_hash)
+      ifdef_flag = proc_list[-1]
+      puts "#if #{ifdef_flag}:#{line_count}:line=[#{line}]:#{$1}"
     when /^#elif\s+(.+)/
-      if is_process == false
-        if condition_judge($1, define_hash)
-          is_process = true
-        else
-          is_process = false
-        end
+      if !ifdef_flag
+        proc_list[-1] = condition_judge($1, define_hash)
+        ifdef_flag = proc_list[-1]
       else
-        is_process = false
+        proc_list[-1] = false
+        ifdef_flag = true
       end
-      puts "#elif #{line_count}:#{ifdef_count}:line=[#{line}]:#{$1}"
+      puts "#elif #{ifdef_flag}:#{line_count}:line=[#{line}]:#{$1}"
     when /^#else/
-      if ifdef_count == 1 and is_process == true
-        is_process = false
+      if !ifdef_flag
+        proc_list[-1] = !proc_list[-1]
       else
-        is_process = true
+        proc_list[-1] = false
+        ifdef_flag = true
       end
-      puts "#else #{line_count}:#{ifdef_count}:line=[#{line}]"
+      puts "#else #{ifdef_flag}:#{line_count}:line=[#{line}]"
     when /^#endif/
-      ifdef_count -= 1
-      if ifdef_count <= 1
-        is_process = true
-      end
-      puts "#endif #{line_count}:#{ifdef_count}:line=[#{line}]"
+      proc_list.pop
+      ifdef_flag = false
+      puts "#endif #{ifdef_flag}:#{line_count}:line=[#{line}]"
     else
-      #puts "#{ifdef_count}:line=[#{line}]"
-      if ifdef_count <= 1
-        if is_process
-          puts "#{is_process}:#{line_count}:#{ifdef_count}: #{line}"
-          out_buf.push line
-        else
-          puts "#{is_process}:#{line_count}:#{ifdef_count}: #{line}"
-        end
+      print "proc_list="
+      pp proc_list
+      if 0 == proc_list.select { |p| p == false }.size
+        puts "#{ifdef_flag}:#{line_count}: #{line}"
+        out_buf.push line
+      else
+        puts "#{ifdef_flag}:#{line_count}: #{line}"
       end
     end
     line_count += 1
