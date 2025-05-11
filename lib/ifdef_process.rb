@@ -41,51 +41,51 @@ def process_ifdef(file_buf, define_hash)
   out_buf = []
   proc_list = [true]
   line_count = 1
-  ifdef_flag = false
+  ifdef_flag = [false]
   file_buf.each_line do |line|
     line = line.strip
     case line
     when /^#ifdef\s+(.*)/
       proc_list.push condition_judge($1, define_hash)
-      ifdef_flag = proc_list[-1]
-      puts "#ifdef #{ifdef_flag}:#{line_count}:line=[#{line}]:#{$1}"
+      ifdef_flag.push proc_list[-1]
+      puts "#ifdef #{ifdef_flag[-1]}:#{line_count}:line=[#{line}]:#{$1}"
     when /^#ifndef\s+(.+)/
       proc_list.push !condition_judge($1, define_hash)
-      ifdef_flag = proc_list[-1]
-      puts "#ifndef #{ifdef_flag}:#{line_count}:line=[#{line}]:#{$1}"
+      ifdef_flag.push proc_list[-1]
+      puts "#ifndef #{ifdef_flag[-1]}:#{line_count}:line=[#{line}]:#{$1}"
     when /^#if\s+(.+)/
       proc_list.push condition_judge($1, define_hash)
-      ifdef_flag = proc_list[-1]
-      puts "#if #{ifdef_flag}:#{line_count}:line=[#{line}]:#{$1}"
+      ifdef_flag.push proc_list[-1]
+      puts "#if #{ifdef_flag[-1]}:#{line_count}:line=[#{line}]:#{$1}"
     when /^#elif\s+(.+)/
-      if !ifdef_flag
+      if !ifdef_flag[-1]
         proc_list[-1] = condition_judge($1, define_hash)
-        ifdef_flag = proc_list[-1]
+        ifdef_flag[-1] = proc_list[-1]
       else
         proc_list[-1] = false
-        ifdef_flag = true
+        ifdef_flag[-1] = true
       end
-      puts "#elif #{ifdef_flag}:#{line_count}:line=[#{line}]:#{$1}"
+      puts "#elif #{ifdef_flag[-1]}:#{line_count}:line=[#{line}]:#{$1}"
     when /^#else/
-      if !ifdef_flag
+      if !ifdef_flag[-1]
         proc_list[-1] = !proc_list[-1]
       else
         proc_list[-1] = false
-        ifdef_flag = true
+        ifdef_flag[-1] = true
       end
-      puts "#else #{ifdef_flag}:#{line_count}:line=[#{line}]"
+      puts "#else #{ifdef_flag[-1]}:#{line_count}:line=[#{line}]"
     when /^#endif/
       proc_list.pop
-      ifdef_flag = false
-      puts "#endif #{ifdef_flag}:#{line_count}:line=[#{line}]"
+      ifdef_flag.pop
+      puts "#endif #{ifdef_flag[-1]}:#{line_count}:line=[#{line}]"
     else
       print "proc_list="
       pp proc_list
       if 0 == proc_list.select { |p| p == false }.size
-        puts "#{ifdef_flag}:#{line_count}: #{line}"
+        puts "#{ifdef_flag[-1]}:#{line_count}: #{line}"
         out_buf.push line
       else
-        puts "#{ifdef_flag}:#{line_count}: #{line}"
+        puts "#{ifdef_flag[-1]}:#{line_count}: #{line}"
       end
     end
     line_count += 1
@@ -101,6 +101,7 @@ if $0 == __FILE__
     "TEST2" => true,
     "TEST3" => true,
     "DEBUG" => true,
+    "AAA" => false,
   }
   out = process_ifdef(buf, define_hash)
   puts "-----------------------------------------------------------------------------------------"
