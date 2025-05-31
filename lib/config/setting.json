@@ -66,10 +66,21 @@
     },
     {
       "name": "exclude_path",
-      "value": "(exclude_path)",
+      "value": "(build|test)",
       "type": "input",
       "select": "",
       "description": "除外するパス（正規表現）"
+    },
+    {
+      "name": "define_hash",
+      "value": {
+        "TEST3": true,
+        "DEBUG": 1,
+        "TEST_FUNC": true
+      },
+      "type": "textarea",
+      "select": "",
+      "description": "定義するdefineのリスト<br>例:<br>{<br>  \"DEBUG\":true <br>  \"VERSION\":1<br>}"
     }
   ]
 }

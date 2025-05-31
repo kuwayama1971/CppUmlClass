@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 require "server_app_base.rb"
 require "kconv"
-#require "create_uml_class.rb"
+require "create_uml_class.rb"
+require "ifdef_process"
 
 class CppUmlClass < AppMainBase
   def start(argv)
@@ -22,9 +23,9 @@ class CppUmlClass < AppMainBase
       out_svg = out_file.gsub(File.extname(out_file), "") + ".svg"
 
       # uml作成
-      load "create_uml_class.rb"
+      pifdef = IfdefProcess.new
 
-      uml = create_uml_class(in_dir, out_file)
+      uml = create_uml_class(pifdef, in_dir, out_file)
 
       File.open(out_file, "w") do |f|
         f.puts uml
@@ -41,6 +42,8 @@ class CppUmlClass < AppMainBase
         yield "exec error"
         yield cmd
       end
+
+      app_send("popup:0:終了しました。<br><hr>#{in_dir}内で使用されているifdefのリスト<br><hr> #{pifdef.define_list.sort.join("<br>")}")
     rescue
       puts $!
       puts $@

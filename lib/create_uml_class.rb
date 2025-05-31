@@ -77,7 +77,7 @@ def update_source(pifdef, file)
       return ""
     end
   end
-  #puts File.binread gcc_out_file.path
+  puts File.binread gcc_out_file.path
   # clang-format
   format_out_file = Tempfile.open(["clang_format", File.extname(file)])
   #puts format_out_file.path
@@ -89,9 +89,10 @@ def update_source(pifdef, file)
     end
   end
   buf = File.binread format_out_file.path
+  puts buf
   # ifdef処理
-  define_hash = {}
-  out_buf = pifdef.process_ifdef(buf, define_hash)
+  out_buf = pifdef.process_ifdef(buf, @config["define_hash"])
+  #puts buf
   return out_buf.join("\n")
 end
 
@@ -158,7 +159,7 @@ end
 
 def composition_list_create(pifdef,in_dir, out_list)
   # composition_list
-  Dir.glob("#{in_dir}/**/*.{h,cpp,hpp}") do |file|
+  Dir.glob("#{in_dir}/**/*.{h,cpp,hpp,cc}") do |file|
     if @config["exclude_path"].to_s != "" and file =~ Regexp.new(@config["exclude_path"])
       #puts "skip #{file}"
       next
@@ -252,8 +253,7 @@ def composition_list_create(pifdef,in_dir, out_list)
   return out_list
 end
 
-def create_uml_class(in_dir, out_file)
-  pifdef = IfdefProcess.new
+def create_uml_class(pifdef, in_dir, out_file)
   out = []
   out.push "@startuml"
 
@@ -269,7 +269,7 @@ def create_uml_class(in_dir, out_file)
       #puts "skip #{file}"
       next
     end
-    #puts file
+    puts file
     # ソースコードの整形
     buf = update_source(pifdef, file)
 
@@ -282,7 +282,7 @@ def create_uml_class(in_dir, out_file)
       next if line =~ /^[\r\n]*$/  # 空行は対象外
       next if line =~ /^#/ # #から始まる行は対象外
       line.gsub!(/["'].*?["']/, '') # "/'囲まれた文字列を削除
-      #puts line
+      puts line
 
       # ブロックの開始/終了
       if line.match(/\{/)
@@ -399,10 +399,11 @@ def create_uml_class(in_dir, out_file)
           cstruct_list.slice!(-1) # 最後の要素を削除
         end
       end
-      #puts "#{block_count} #{line.chomp}"
+      puts "#{block_count} #{line.chomp}"
     end
     if block_count != 0
       # エラー
+      puts "error block_count=#{block_count}"
       puts file
       return ""
     end
@@ -430,21 +431,13 @@ def create_uml_class(in_dir, out_file)
   end
 
   out.push "@enduml"
-  puts pifdef.define_list
   return out.join("\n")
 end
 
 if $0 == __FILE__
-  @config = { "exclude_path" => "" }
-
-  if true
-    puts create_uml_class(ARGV[0], ARGV[1])
-  else
-    out_list = []
-    out_list.push CStruct.new(:method_start, "DefaultVehicleHal", 1, [], [], [], [])
-    out_list.push CStruct.new(:method_start, "SubscriptionManager", 1, [], [], [], [])
-    out_list.push CStruct.new(:method_start, "ContSubConfigs", 1, [], [], [], [])
-    out_list.push CStruct.new(:method_start, "GetSetValuesClient", 1, [], [], [], [])
-    puts composition_list_create(ARGV[0], out_list)
-  end
+  @config = { "exclude_path" => "",
+"define_hash" => {} }
+  pifdef = IfdefProcess.new
+  puts create_uml_class(pifdef, ARGV[0], ARGV[1])
+  puts pifdef.define_list
 end

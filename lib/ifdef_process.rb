@@ -15,7 +15,7 @@ class IfdefProcess
     text.gsub(regex, '\1')
   end
 
-  def condition_judge(cond_string, define_hash, is_ifdef = true)
+  def condition_judge(cond_string, define_hash)
     ret = false
     #puts "cond_string=#{cond_string}"
     cond_string = remove_suffixes(cond_string)
@@ -68,20 +68,20 @@ class IfdefProcess
       line = line.strip
       case line
       when /^#ifdef\s+(.*)/
-        proc_list.push condition_judge($1, define_hash, true)
+        proc_list.push condition_judge($1, define_hash)
         ifdef_flag.push proc_list[-1]
         #puts "#ifdef #{ifdef_flag[-1]}:#{line_count}:line=[#{line}]:#{$1}"
       when /^#ifndef\s+(.+)/
-        proc_list.push !(condition_judge($1, define_hash, true))
+        proc_list.push !(condition_judge($1, define_hash))
         ifdef_flag.push proc_list[-1]
         #puts "#ifndef #{ifdef_flag[-1]}:#{line_count}:line=[#{line}]:#{$1}"
       when /^#if\s+(.+)/
-        proc_list.push condition_judge($1, define_hash, false)
+        proc_list.push condition_judge($1, define_hash)
         ifdef_flag.push proc_list[-1]
         #puts "#if #{ifdef_flag[-1]}:#{line_count}:line=[#{line}]:#{$1}"
       when /^#elif\s+(.+)/
         if !ifdef_flag[-1]
-          proc_list[-1] = condition_judge($1, define_hash, false)
+          proc_list[-1] = condition_judge($1, define_hash)
           ifdef_flag[-1] = proc_list[-1]
         else
           proc_list[-1] = false
@@ -112,6 +112,7 @@ class IfdefProcess
       end
       line_count += 1
     end
+    @define_list.uniq!
     return out_buf
   end
 end
