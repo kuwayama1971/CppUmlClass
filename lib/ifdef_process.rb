@@ -15,11 +15,32 @@ class IfdefProcess
     text.gsub(regex, '\1')
   end
 
+  def check_ifdefined(cond_string, define_hash)
+    pattern = /(!)?defined\(([^)]*)\)/
+    define_hash_new = define_hash.dup
+    matches = cond_string.scan(pattern)
+
+    matches.each do |match|
+      # !definedでKeyが未登録の場合は登録
+      has_exclamation = !match[0].nil?
+      key = match[1]
+      if has_exclamation
+        unless define_hash.key? key
+          define_hash_new[key] = false
+        end
+      end
+    end
+
+    return define_hash_new
+  end
+
   def condition_judge(cond_string, define_hash)
     ret = false
     #puts "cond_string=#{cond_string}"
     cond_string = remove_suffixes(cond_string)
     puts "cond_string=#{cond_string}"
+    define_hash_new = check_ifdefined(cond_string, define_hash)
+    pp define_hash_new
     cond_string.gsub!(/defined/, "")
     if cond_string.gsub(/ /, "").to_s == "0"
       # not define
@@ -33,8 +54,8 @@ class IfdefProcess
       #puts "scan word=#{m}"
       @define_list.push m
       next if m == "false" or m == "true"
-      if define_hash.key? m
-        arg_hash[m] = define_hash[m]
+      if define_hash_new.key? m
+        arg_hash[m] = define_hash_new[m]
       else
         # not define
         puts "return ifdef_judge #{ret}"
