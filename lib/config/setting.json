@@ -66,7 +66,7 @@
     },
     {
       "name": "exclude_path",
-      "value": "(build|test)",
+      "value": "(build)",
       "type": "input",
       "select": "",
       "description": "除外するパス（正規表現）"

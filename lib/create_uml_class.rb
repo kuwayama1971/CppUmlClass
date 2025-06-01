@@ -67,32 +67,26 @@ end
 # ifdefの処理(unifdef)
 def update_source(pifdef, file)
   puts "update_source=#{file}"
+  # clang-format
+  format_out_file = Tempfile.open(["clang_format", File.extname(file)])
+  open("|#{get_clang_format_path} #{file} > #{format_out_file.path}") do |f|
+    if f.read =~ /No such/
+      puts "clang-format error #{f}"
+      return ""
+    end
+  end
   # コメント削除
   gcc_out_file = Tempfile.open(["gcc", File.extname(file)])
-  #puts gcc_out_file.path
-  #puts "|#{get_gcc_path} #{file} > #{gcc_out_file.path}"
-  open("|#{get_gcc_path} #{file} > #{gcc_out_file.path}") do |f|
+  open("|#{get_gcc_path} #{format_out_file.path} > #{gcc_out_file.path}") do |f|
     if f.read =~ /error/
       puts "gcc error #{f}"
       return ""
     end
   end
-  puts File.binread gcc_out_file.path
-  # clang-format
-  format_out_file = Tempfile.open(["clang_format", File.extname(file)])
-  #puts format_out_file.path
-  #puts "|#{get_clang_format_path} #{gcc_out_file.path} > #{format_out_file.path}"
-  open("|#{get_clang_format_path} #{gcc_out_file.path} > #{format_out_file.path}") do |f|
-    if f.read =~ /No such/
-      puts "gcc error #{f}"
-      return ""
-    end
-  end
-  buf = File.binread format_out_file.path
+  buf = File.binread gcc_out_file.path
   puts buf
   # ifdef処理
   out_buf = pifdef.process_ifdef(buf, @config["define_hash"])
-  #puts buf
   return out_buf.join("\n")
 end
 
@@ -282,7 +276,7 @@ def create_uml_class(pifdef, in_dir, out_file)
       next if line =~ /^[\r\n]*$/  # 空行は対象外
       next if line =~ /^#/ # #から始まる行は対象外
       line.gsub!(/["'].*?["']/, '') # "/'囲まれた文字列を削除
-      puts line
+      #puts line
 
       # ブロックの開始/終了
       if line.match(/\{/)
@@ -399,7 +393,7 @@ def create_uml_class(pifdef, in_dir, out_file)
           cstruct_list.slice!(-1) # 最後の要素を削除
         end
       end
-      puts "#{block_count} #{line.chomp}"
+      #puts "#{block_count} #{line.chomp}"
     end
     if block_count != 0
       # エラー
