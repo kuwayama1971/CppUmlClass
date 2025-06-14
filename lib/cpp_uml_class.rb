@@ -43,7 +43,7 @@ class CppUmlClass < AppMainBase
         yield cmd
       end
 
-      app_send("popup:0:終了しました。<br><hr>#{in_dir}内で使用されているifdefのリスト<br><hr> #{pifdef.define_list.sort.join("<br>")}")
+      app_send("popup:0:終了しました。<br><hr>#{in_dir}<br>で使用されているifdefのリスト<br><hr> #{pifdef.define_list.sort.join("<br>")}")
     rescue
       puts $!
       puts $@
