@@ -37,11 +37,13 @@ end
 json_config = config_json_hash(json)
 
 file = "#{dir}/lib/create_uml_class.rb"
-puts file
+load file
+file = "#{dir}/lib/ifdef_process.rb"
 load file
 
 @config = json_config
-uml = create_uml_class(in_dir, out_file)
+pifdef = IfdefProcess.new
+uml = create_uml_class(pifdef, in_dir, out_file)
 
 File.open(out_file, "w") do |f|
   f.puts uml
