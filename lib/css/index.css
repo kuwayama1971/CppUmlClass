@@ -75,7 +75,7 @@ body {
     background: #f6fbff;
     box-shadow: 0 1px 5px #b6d6f6;
     border-radius: 0 0 5px 5px;
-    min-width: 120px;
+    min-width: 150px;
     z-index: 100;
     padding: 0;
     margin: 0;
@@ -172,10 +172,10 @@ body {
     background: #f6fbff;
     border-radius: 7px;
     min-height: 200px;
-    width: 98vw;
-    height: 82vh;
-    max-width: 98vw;
-    max-height: 82vh;
+    width: 95vw;
+    height: 75vh;
+    max-width: 95vw;
+    max-height: 90vh;
     box-shadow: 0 1px 8px #b6d6f677;
     margin-top: 4px;
     color: #b0bec5;
@@ -346,9 +346,9 @@ ul.log li {
     min-width: 120px;
     max-width: 100%;
 }
+
 #dialog2 #search_str2 {
     width: 100%;
     box-sizing: border-box;
     min-width: 120px;
     max-width: 100%;
-
