@@ -1,75 +1,115 @@
 # CppUmlClass
 
-CppUmlClass creates a C++ class diagram.  
-PlantUML and rufo commands are used to create class diagrams.  
-The created class diagram is displayed on the browser screen.  
+CppUmlClass generates C++ class diagrams from your source code.  
+It uses PlantUML and rufo commands to create the diagrams, which are displayed in your browser.  
 
-## ruby setup
-    for ubuntu
-    $ sudo apt install ruby ruby-all-dev
+---
+
+## Version 1.0.0 Highlights
+
+- **Full support for ifdef/ifndef/if/else/elif/endif preprocessor directives**
+  - New: `lib/ifdef_process.rb` allows flexible interpretation of C/C++ preprocessors, reflected in UML analysis.
+- **Flexible define management with `define_hash`**
+  - You can control defines and their values for analysis via the `define_hash` in the settings file (`setting.json`). This can be edited from the GUI as well.
+- **Enhanced settings dialog and configuration management**
+  - Improved settings dialog with more intuitive editing, saving, and loading.
+- **Modernized UI/UX**
+  - Major updates to CSS, HTML, and JS provide a modern look, responsive design, and improved usability.
+- **WebSocket server and log output improvements**
+  - Flexible port settings and real-time, improved logging/progress display.
+
+---
+
+## Ruby Setup
+
+For Ubuntu:
+```sh
+$ sudo apt install ruby ruby-all-dev
+```
     
 ## CppUmlClass Setup
-    for ubuntu
-    $ sudo apt install chromium-browser
-    $ sudo apt install plantuml
-    $ sudo apt install clang-format
-    $ sudo apt install gcc
+
+For Ubuntu:
+```sh
+$ sudo apt install chromium-browser
+$ sudo apt install plantuml
+$ sudo apt install clang-format
+$ sudo apt install gcc
+```
 
 ## Installation
 
-Install the gem and add to the application's Gemfile by executing:
+Add the gem to your application's Gemfile by running:
 
-    $ bundle add CppUmlClass
+```sh
+$ bundle add CppUmlClass
+```
 
-If bundler is not being used to manage dependencies, install the gem by executing:
+If you are not using bundler, install the gem directly:
 
-    $ sudo gem install CppUmlClass
+```sh
+$ sudo gem install CppUmlClass
+```
 
-## Usage(GUI)
-A browser-based GUI opens.
+## Usage (GUI)
 
-    $ start_cpp_uml_class.rb
-    
+A browser-based GUI will open:
+
+```sh
+$ start_cpp_uml_class.rb
+```
+
 https://github.com/user-attachments/assets/dfd68556-bf4d-43b7-8fef-b6f951c9147d
 
-## Usage(command line)
-command line interface
+## Usage (Command Line)
+
+You can also use the command line interface:
+
 ```
 Usage: create_cpp_uml_class.rb [options] cpp_source_directory out_file
     -c config_file
 ```
-config_file defaults to CppUmlClass/config/setting.json in your home directory.
+The config_file defaults to `CppUmlClass/config/setting.json` in your home directory.
 
-Example
+Example:
 
-    $ create_cpp_uml_class.rb ~/tool/cpp_test /tmp/test.pu
+```sh
+$ create_cpp_uml_class.rb ~/tool/cpp_test /tmp/test.pu
+```
 
+---
 
-## clsss color support
+## Class Color Support
 
 ![class_color](img/class_color.png)
 
-## Setting
+## Settings
 
-- plant uml command
-- editor to open plant uml file
-- default class color 1
-- source path of the class that sets the color 1
-- default class color 2
-- source path of the class that sets the color 2
-- default class color 3
-- source path of the class that sets the color 2
-- exclude path    
+- PlantUML command
+- Editor command for PlantUML files
+- Default class color 1 and source path for color 1
+- Default class color 2 and source path for color 2
+- Default class color 3 and source path for color 3
+- Exclude path
+- define_hash
 
-The setting file is saved in the home directory under CppUmlClass/config/setting.json.
+The settings file is stored at `CppUmlClass/config/setting.json` in your home directory.
+
+**Example for define_hash:**
+```json
+{
+  "TEST3": true,
+  "DEBUG": 1,
+  "TEST_FUNC": true
+}
+```
 
 ![setting](img/setting.png)
 
-
-
 ## Development
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+To install this gem locally, run `bundle exec rake install`.  
+To release a new version, update the version in `version.rb`, then run `bundle exec rake release` (this creates a git tag, pushes commits and tags, and uploads the `.gem` file to [rubygems.org](https://rubygems.org)).
 
 ## Contributing
 
@@ -77,4 +117,7 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/kuwaya
 
 ## License
 
-The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+This gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+
+---
+

@@ -66,7 +66,7 @@ end
 # コメント削除(gcc)
 # ifdefの処理(unifdef)
 def update_source(pifdef, file)
-  puts "update_source=#{file}"
+  #puts "update_source=#{file}"
   # clang-format
   format_out_file = Tempfile.open(["clang_format", File.extname(file)])
   open("|#{get_clang_format_path} #{file} > #{format_out_file.path}") do |f|
@@ -84,7 +84,7 @@ def update_source(pifdef, file)
     end
   end
   buf = File.binread gcc_out_file.path
-  puts buf
+  #puts buf
   # ifdef処理
   out_buf = pifdef.process_ifdef(buf, @config["define_hash"])
   return out_buf.join("\n")
@@ -263,7 +263,7 @@ def create_uml_class(pifdef, in_dir, out_file)
       #puts "skip #{file}"
       next
     end
-    puts file
+    #puts file
     # ソースコードの整形
     buf = update_source(pifdef, file)
 

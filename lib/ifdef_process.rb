@@ -38,13 +38,13 @@ class IfdefProcess
     ret = false
     #puts "cond_string=#{cond_string}"
     cond_string = remove_suffixes(cond_string)
-    puts "cond_string=#{cond_string}"
+    #puts "cond_string=#{cond_string}"
     define_hash_new = check_ifdefined(cond_string, define_hash)
-    pp define_hash_new
+    #pp define_hash_new
     cond_string.gsub!(/defined/, "")
     if cond_string.gsub(/ /, "").to_s == "0"
       # not define
-      puts "return ifdef_judge #{ret}"
+      #puts "return ifdef_judge #{ret}"
       return false
     end
     eval_buf = []
@@ -58,7 +58,7 @@ class IfdefProcess
         arg_hash[m] = define_hash_new[m]
       else
         # not define
-        puts "return ifdef_judge #{ret}"
+        #puts "return ifdef_judge #{ret}"
         return false
       end
     end
@@ -74,9 +74,9 @@ class IfdefProcess
     eval_buf.push "end"
     eval_buf.push "judge_ifdef()"
     eval_string = eval_buf.join("\n")
-    puts "eval_string=#{eval_string}"
+    #puts "eval_string=#{eval_string}"
     ret = eval eval_string
-    puts "return ifdef_judge #{ret}"
+    #puts "return ifdef_judge #{ret}"
     return ret
   end
 

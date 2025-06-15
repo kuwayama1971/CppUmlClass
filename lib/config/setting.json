@@ -1,5 +1,5 @@
 {
-  "version": 0.2,
+  "version": 0.3,
   "setting_list": [
     {
       "name": "plantuml",
@@ -74,11 +74,8 @@
     {
       "name": "define_hash",
       "value": {
-        "TEST3": true,
-        "DEBUG": 1,
-        "TEST_FUNC": true,
-        "DEBUG_PRINT2": true,
-        "VERSION": 2
+        "DEBUG": true,
+        "DEBUG_PRINT2": true
       },
       "type": "textarea",
       "select": "",
