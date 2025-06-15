@@ -1,5 +1,5 @@
 {
-  "version": 0.2,
+  "version": 0.3,
   "setting_list": [
     {
       "name": "plantuml",
@@ -66,10 +66,20 @@
     },
     {
       "name": "exclude_path",
-      "value": "(exclude_path)",
+      "value": "(build)",
       "type": "input",
       "select": "",
       "description": "除外するパス（正規表現）"
+    },
+    {
+      "name": "define_hash",
+      "value": {
+        "DEBUG": true,
+        "DEBUG_PRINT2": true
+      },
+      "type": "textarea",
+      "select": "",
+      "description": "定義するdefineのリスト<br>例:<br>{<br>  \"DEBUG\":true <br>  \"VERSION\":1<br>}"
     }
   ]
 }

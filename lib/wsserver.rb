@@ -62,7 +62,7 @@ class WsServer < Sinatra::Base
                   $app.start(argv.split(",")) do |out|
                     ws_send(out)
                   end
-                  ws_send("app_end:normal")
+                  #ws_send("app_end:normal")
                 rescue
                   puts $!
                   puts $@

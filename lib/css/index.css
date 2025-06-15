@@ -1,182 +1,354 @@
 body {
-    color: #000000;
-    background-color: #cac3ec4f;
-    overflow: hidden;
-    font-size: 14px;
+    font-family: 'Roboto', Arial, sans-serif;
+    background: linear-gradient(135deg, #e3f0fc 0%, #b6d6f6 100%);
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    color: #234067;
+    font-size: 13px;
 }
 
-hr {
-    color: #ffffff;
-    background-color: #000000;
-    height: 1px;
-    /* 線の太さ */
-    border: 1px;
-    /* 枠の太さ */
-    border-style: solid;
-    /* 枠の種類 */
+.app-header {
+    display: flex;
+    align-items: center;
+    background: #b3d6f6;
+    padding: 10px 20px;
+    box-shadow: 0 1px 8px #afd6f9aa;
+    border-bottom: 1px solid #a3c9e6;
 }
 
-.error {
-    color: red;
+.app-header .material-icons {
+    font-size: 1.6rem;
+    color: #539ad9;
+    margin-right: 10px;
 }
 
-.outarea {
-    background-color: #FFFFFF;
-    margin: 5px;
-    padding: 5px;
-    width: 95vw;
-    height: 50vh;
-    overflow: auto;
+.app-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #234067;
 }
 
-.inarea {
-    border: thin solid #000000;
-    margin: 5px;
-    padding: 5px;
-    width: 95%;
-}
-
-input.long {
-    width: 90%;
-    background-color: #FAFAFA;
-    margin: 5px;
-    padding: 5px;
-}
-
-textarea.long {
-    width: 95vw;
-    height: 50vh;
-}
-
-.ui-widget {
-    font-size: 14px;
-}
-
-.ui-autocomplete {
-    max-height: 45vh;
-    max-width: 90wh;
-    overflow-y: auto;
-    overflow-x: auto;
-    padding-right: 10px;
-}
-
-#jquery-ui-autocomplete label {
-    float: left;
-    margin-right: 0.5em;
-    color: black;
-}
-
-.ui-autocomplete.ui-front {
-    max-height: 250px;
-    overflow-y: auto;
-    /* prevent horizontal scrollbar */
-    overflow-x: hidden;
-    /* add padding to account for vertical scrollbar */
-    z-index: 1000 !important;
-}
-
-.ui-dialog {
-    position: absolute;
-    top: 0;
-    left: 0;
-    padding: .2em;
-    outline: 0;
-}
-
-.long {
-    width: 90%;
-}
-
-#setting_dialog {
-    color: #ffffff;
-    background-color: #000000;
-    font-size: 14px;
-}
-
-.setting_name {
-    width: 300px;
-    color: #ffffff;
-    background-color: #000000;
-    font-size: 14px;
-}
-
-.setting_value {
-    width: 300px;
-    color: #ffffff;
-    background-color: #000000;
-    font-size: 14px;
-}
-
-.setting_checkbox {
-    color: #ffffff;
-    background-color: #000000;
-    font-size: 14px;
-}
-
-ul.log {
-    list-style-type: decimal;
-    font-size: 12px;
-    color: #5d0a94;
-}
-
-input[type="search"] {
-    -webkit-appearance: searchfield;
-}
-
-input[type="search"]::-webkit-search-cancel-button {
-    -webkit-appearance: searchfield-cancel-button;
-}
-
-/* menu */
+/* Modern Menu Styling */
 .menu {
     display: flex;
-    justify-content: flex-start;
-    list-style-type: none;
-    color: #393737;
+    list-style: none;
     padding: 0;
-    font-size: 14px;
-    font-weight: bold;
+    margin: 18px 0 0 18px;
+    gap: 10px;
+    font-size: 13px;
 }
 
-.menu li {
+.menu>li {
     position: relative;
-    width: 100px;
-    margin-left: 1px;
-    padding: 5px;
-    background: #d8dada;
-    list-style-type: none;
+    background: #e5f2fb;
+    border-radius: 5px;
+    overflow: visible;
+    transition: box-shadow 0.2s;
 }
 
-.menu li a {
-    color: rgb(20, 114, 192);
+.menu>li:hover,
+.menu>li:focus-within {
+    box-shadow: 0 2px 8px #539ad955;
+    background: #d2e8f7;
 }
 
-.menu li a:hover {
-    background: #eba399;
-}
-
-.menuSub {
-    position: absolute;
-    margin-left: -6px;
-    padding: 0;
-    display: none;
-}
-
-/*.openが付与された時、表示の設定*/
-.menuSub.open {
+.menu>li>a,
+.menu>li>span {
     display: block;
+    color: #234067;
+    font-weight: 500;
+    padding: 7px 16px;
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background 0.2s;
+}
+
+/* サブメニューの表示制御 */
+.menuSub {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: #f6fbff;
+    box-shadow: 0 1px 5px #b6d6f6;
+    border-radius: 0 0 5px 5px;
+    min-width: 150px;
+    z-index: 100;
+    padding: 0;
+    margin: 0;
+}
+
+.menu>li:hover>.menuSub,
+.menu>li:focus-within>.menuSub {
+    display: block;
+}
+
+.menuSub li {
+    list-style: none;
 }
 
 .menuSub li a {
-    padding: 5px;
-    margin-left: -5px;
-    margin-right: -5px;
-    margin-bottom: -5px;
+    color: #3b5c7e;
+    padding: 7px 15px;
     display: block;
-    color: rgb(20, 114, 192);
+    border-bottom: 1px solid #e3f0fc;
+    transition: color 0.2s, background 0.2s;
     text-decoration: none;
+    font-size: 13px;
+}
+
+.menuSub li:last-child a {
+    border-bottom: none;
 }
 
 .menuSub li a:hover {
-    background: #eba399;
+    background: #d2e8f7;
+    color: #234067;
 }
+
+/* Main Content Layout */
+.main-content {
+    display: flex;
+    flex-direction: column;
+    margin: 5px 1vw 0 1vw;
+    /* 余白を減らす */
+    gap: 6px;
+    /* 要素間の隙間も少し減らす */
+    font-size: 13px;
+}
+
+.input-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 7px;
+    font-size: 13px;
+}
+
+.input-row input[type="search"],
+.input-row input[type="text"] {
+    background: #e5f2fb;
+    border: 1px solid #b3d6f6;
+    border-radius: 4px;
+    padding: 6px 10px;
+    color: #234067;
+    font-size: 13px;
+    outline: none;
+    transition: box-shadow 0.2s;
+    width: 170px;
+}
+
+.input-row input[type="search"]:focus {
+    box-shadow: 0 0 0 2px #b6d6f6;
+}
+
+.input-row button,
+.input-row input[type="button"] {
+    background: #b6d6f6;
+    color: #234067;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 13px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    font-weight: 500;
+    margin-left: 1px;
+    box-shadow: 0 1px 4px #b6d6f633;
+}
+
+.input-row button:hover,
+.input-row input[type="button"]:hover {
+    background: #d2e8f7;
+    color: #539ad9;
+    box-shadow: 0 1px 8px #b6d6f6cc;
+}
+
+/* Log Output */
+.outarea {
+    background: #f6fbff;
+    border-radius: 7px;
+    min-height: 200px;
+    width: 95vw;
+    height: 75vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    box-shadow: 0 1px 8px #b6d6f677;
+    margin-top: 4px;
+    color: #b0bec5;
+    overflow-y: auto;
+    font-size: 12px;
+    margin-left: 1px;
+    margin-right: 1px;
+    display: block;
+    padding: 1px 1px;
+
+}
+
+ul.log {
+    margin: 0;
+    padding-left: 0.5px;
+    font-size: 13px;
+    color: #539ad9;
+    letter-spacing: 0.1px;
+    padding: 0.5px 0.5px;
+}
+
+ul.log li {
+    margin-bottom: 0.3em;
+}
+
+/* Dialog Styling Overrides */
+.ui-dialog {
+    background: #e5f2fb;
+    color: #234067;
+    border-radius: 6px;
+    box-shadow: 0 2px 12px #b6d6f677;
+    border: none;
+    font-size: 13px;
+}
+
+.ui-dialog-titlebar {
+    background: #b6d6f6;
+    color: #539ad9;
+    border: none;
+    border-radius: 6px 6px 0 0;
+    font-weight: 700;
+    font-size: 13px;
+}
+
+.ui-dialog-buttonpane button {
+    background: #b6d6f6;
+    color: #234067;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 11px;
+    font-weight: bold;
+    margin: 0 5px;
+    font-size: 13px;
+    transition: background 0.2s, color 0.2s;
+}
+
+.ui-dialog-buttonpane button:hover {
+    background: #539ad9;
+    color: #f6fbff;
+}
+
+/* Settings dialog table */
+#setting_dialog table {
+    width: 95%;
+    margin-bottom: 5px;
+    font-size: 13px;
+}
+
+#setting_dialog .setting_name {
+    color: #539ad9;
+    width: 120px;
+    font-weight: bold;
+    padding-right: 12px;
+    font-size: 13px;
+}
+
+#setting_dialog .setting_value {
+    width: 100%;
+    max-width: 100%;
+    min-width: 120px;
+    box-sizing: border-box;
+}
+
+#setting_dialog input,
+#setting_dialog select {
+    background: #f6fbff;
+    color: #234067;
+    border: 1px solid #b3d6f6;
+    border-radius: 4px;
+    padding: 5px 8px;
+    font-size: 13px;
+}
+
+#msg_text {
+    font-size: 13px;
+    color: #234067;
+    padding: 10px 0;
+}
+
+@media (max-width: 700px) {
+    .main-content {
+        margin: 7px 2vw;
+    }
+
+    .outarea {
+        padding: 7px;
+    }
+
+    .menu>li>a,
+    .menu>li>span {
+        padding: 7px 7px;
+    }
+
+    .input-row input[type="search"] {
+        width: 80px;
+    }
+}
+
+.input-row input#inDir {
+    width: 80vw;
+    max-width: 80vw;
+    min-width: 200px;
+}
+
+.input-row input#outFile {
+    width: 80vw;
+    max-width: 80vw;
+    min-width: 200px;
+}
+
+.input-row input#inDir,
+.input-row input#outDir {
+    background: #f6fbff;
+    color: #234067;
+    border: 1px solid #b3d6f6;
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 13px;
+    outline: none;
+    transition: box-shadow 0.2s;
+}
+
+.input-row input#inDir:focus,
+.input-row input#outDir:focus {
+    box-shadow: 0 0 0 2px #b6d6f6;
+}
+
+.input-row input#outFile,
+.input-row input#outDir {
+    background: #f6fbff;
+    color: #234067;
+    border: 1px solid #b3d6f6;
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 13px;
+    outline: none;
+    transition: box-shadow 0.2s;
+}
+
+.input-row input#outFile:focus,
+.input-row input#outDir:focus {
+    box-shadow: 0 0 0 2px #b6d6f6;
+}
+
+#dialog1 #search_str {
+    width: 100%;
+    box-sizing: border-box;
+    min-width: 120px;
+    max-width: 100%;
+}
+
+#dialog2 #search_str2 {
+    width: 100%;
+    box-sizing: border-box;
+    min-width: 120px;
+    max-width: 100%;

@@ -3,6 +3,7 @@ $LOAD_PATH << File.dirname(File.expand_path(__FILE__))
 require "tempfile"
 require "facter"
 require "check_word"
+require "ifdef_process"
 
 CStruct = Struct.new(:type,
                      :name,
@@ -19,12 +20,12 @@ def get_gcc_path
     ENV["PATH"].split(";").each do |path|
       gcc_path = "#{path}\\gcc"
       if File.exists? gcc_path
-        return "rubyw " + gcc_path + " -fpreprocessed -dD -E "
+        return "rubyw " + gcc_path + "w1 "
       end
     end
     return ""
   else
-    return "gcc -fpreprocessed -dD -E "
+    return "gcc -fpreprocessed -E "
   end
 end
 
@@ -64,43 +65,29 @@ end
 # フォーマット変更(clang-format)
 # コメント削除(gcc)
 # ifdefの処理(unifdef)
-def update_source(file)
+def update_source(pifdef, file)
+  #puts "update_source=#{file}"
+  # clang-format
+  format_out_file = Tempfile.open(["clang_format", File.extname(file)])
+  open("|#{get_clang_format_path} #{file} > #{format_out_file.path}") do |f|
+    if f.read =~ /No such/
+      puts "clang-format error #{f}"
+      return ""
+    end
+  end
   # コメント削除
   gcc_out_file = Tempfile.open(["gcc", File.extname(file)])
-  #puts gcc_out_file.path
-  #puts "|#{get_gcc_path} #{file} > #{gcc_out_file.path}"
-  open("|#{get_gcc_path} #{file} > #{gcc_out_file.path}") do |f|
+  open("|#{get_gcc_path} #{format_out_file.path} > #{gcc_out_file.path}") do |f|
     if f.read =~ /error/
       puts "gcc error #{f}"
       return ""
     end
   end
-  #puts File.binread gcc_out_file.path
-  # clang-format
-  format_out_file = Tempfile.open(["clang_format", File.extname(file)])
-  #puts format_out_file.path
-  #puts "|#{get_clang_format_path} #{gcc_out_file.path} > #{format_out_file.path}"
-  open("|#{get_clang_format_path} #{gcc_out_file.path} > #{format_out_file.path}") do |f|
-    if f.read =~ /No such/
-      puts "gcc error #{f}"
-      return ""
-    end
-  end
-  buf = File.binread format_out_file.path
-  return buf
+  buf = File.binread gcc_out_file.path
+  #puts buf
   # ifdef処理
-  unifdef_out_file = Tempfile.open(["gcc", File.extname(file)])
-  #puts unifdef_out_file.path
-  #puts "|#{get_unifdef_path} #{format_out_file.path} > #{unifdef_out_file.path}"
-  open("|#{get_unifdef_path} #{gcc_out_file.path} > #{unifdef_out_file.path}") do |f|
-    if f.read =~ /No such/
-      puts "gcc error #{f}"
-      return ""
-    end
-  end
-  buf = File.binread unifdef_out_file.path
-  puts buf
-  return buf
+  out_buf = pifdef.process_ifdef(buf, @config["define_hash"])
+  return out_buf.join("\n")
 end
 
 def print_uml(out, out_list)
@@ -110,7 +97,7 @@ def print_uml(out, out_list)
     elsif o_list.type == :module_start
       out.push "namespace #{o_list.name} {"
     elsif o_list.type == :class_end
-      pp o_list if o_list.name == ""
+      #pp o_list if o_list.name == ""
       out.push "class #{o_list.name} #{o_list.class_color}{"
       # インスタンス変数の出力
       o_list.var_list.uniq.each do |iv|
@@ -135,7 +122,7 @@ def print_uml(out, out_list)
          o_list.method_list.size != 0 or
          o_list.inherit_list.size != 0 or
          o_list.composition_list.size != 0
-        pp o_list if o_list.name == ""
+        #pp o_list if o_list.name == ""
         out.push "class #{o_list.name} {"
         # インスタンス変数の出力
         o_list.var_list.uniq.each do |iv|
@@ -164,16 +151,16 @@ def print_uml(out, out_list)
   return out
 end
 
-def composition_list_create(in_dir, out_list)
+def composition_list_create(pifdef,in_dir, out_list)
   # composition_list
-  Dir.glob("#{in_dir}/**/*.{h,cpp,hpp}") do |file|
+  Dir.glob("#{in_dir}/**/*.{h,cpp,hpp,cc}") do |file|
     if @config["exclude_path"].to_s != "" and file =~ Regexp.new(@config["exclude_path"])
       #puts "skip #{file}"
       next
     end
-    #puts file
+    #puts "file=#{file}"
     # ソースコードの整形
-    buf = update_source(file)
+    buf = update_source(pifdef, file)
     # ソースを解析
     cstruct_list = []
     block_count = 0
@@ -260,7 +247,7 @@ def composition_list_create(in_dir, out_list)
   return out_list
 end
 
-def create_uml_class(in_dir, out_file)
+def create_uml_class(pifdef, in_dir, out_file)
   out = []
   out.push "@startuml"
 
@@ -278,7 +265,7 @@ def create_uml_class(in_dir, out_file)
     end
     #puts file
     # ソースコードの整形
-    buf = update_source(file)
+    buf = update_source(pifdef, file)
 
     cstruct_list = []
     block_count = 0
@@ -328,7 +315,7 @@ def create_uml_class(in_dir, out_file)
         elsif @config["class_color_path2"].to_s != "" and file =~ Regexp.new(@config["class_color_path2"])
           cstruct_list.push CStruct.new(:class_end, class_name, block_count, [], [], [], [], @config["class_color2"])
         elsif @config["class_color_path3"].to_s != "" and file =~ Regexp.new(@config["class_color_path3"])
-          pp file
+          #pp file
           cstruct_list.push CStruct.new(:class_end, class_name, block_count, [], [], [], [], @config["class_color3"])
         else
           cstruct_list.push CStruct.new(:class_end, class_name, block_count, [], [], [], [], @config["default_class_color"])
@@ -406,16 +393,17 @@ def create_uml_class(in_dir, out_file)
           cstruct_list.slice!(-1) # 最後の要素を削除
         end
       end
-      puts "#{block_count} #{line.chomp}"
+      #puts "#{block_count} #{line.chomp}"
     end
     if block_count != 0
       # エラー
+      puts "error block_count=#{block_count}"
       puts file
       return ""
     end
   end
   # compositon_listの作成
-  out_list = composition_list_create(in_dir, out_list)
+  out_list = composition_list_create(pifdef, in_dir, out_list)
   # UMLの出力
   out = print_uml(out, out_list)
 
@@ -440,39 +428,10 @@ def create_uml_class(in_dir, out_file)
   return out.join("\n")
 end
 
-def search_func(file)
-  #puts file
-  # ソースコードの整形
-  buf = update_source(file)
-  # ソースを解析
-  buf.each_line do |line|
-    next if line =~ /^[\r\n]*$/  # 空行は対象外
-    next if line =~ /^#/ # #から始まる行は対象外
-    #puts line
-    if line.gsub(/<.*>/, "") =~ /^\S.*(\S+)::(\S+).*\(.*{$/
-      #puts line.gsub!(/<.*>/, "")
-      line.match(/(\w+)(?=\S+\()/) do |m|
-        #puts "class_name=#{m}"
-      end
-    end
-  end
-end
-
 if $0 == __FILE__
-  #search_func(ARGV[0])
-  #exit
-  #buf = update_source(ARGV[0])
-  #puts buf
-  @config = { "exclude_path" => "" }
-
-  if true
-    puts create_uml_class(ARGV[0], ARGV[1])
-  else
-    out_list = []
-    out_list.push CStruct.new(:method_start, "DefaultVehicleHal", 1, [], [], [], [])
-    out_list.push CStruct.new(:method_start, "SubscriptionManager", 1, [], [], [], [])
-    out_list.push CStruct.new(:method_start, "ContSubConfigs", 1, [], [], [], [])
-    out_list.push CStruct.new(:method_start, "GetSetValuesClient", 1, [], [], [], [])
-    puts composition_list_create(ARGV[0], out_list)
-  end
+  @config = { "exclude_path" => "",
+"define_hash" => {} }
+  pifdef = IfdefProcess.new
+  puts create_uml_class(pifdef, ARGV[0], ARGV[1])
+  puts pifdef.define_list
 end
