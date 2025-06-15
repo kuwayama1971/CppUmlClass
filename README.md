@@ -59,7 +59,7 @@ A browser-based GUI will open:
 $ start_cpp_uml_class.rb
 ```
 
-https://github.com/user-attachments/assets/dfd68556-bf4d-43b7-8fef-b6f951c9147d
+https://github.com/user-attachments/assets/d30ff495-5cee-4431-b35b-4c22f630ca22
 
 ## Usage (Command Line)
 
