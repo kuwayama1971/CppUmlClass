@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CppUmlClass Demo</title>
+  <style>
+    :root {
+      --bg: #f7f9fb;
+      --card: #fff;
+      --accent: #2563eb;
+      --muted: #6b7280;
+      --text: #0b1220;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace;
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      color: var(--text);
+      background: linear-gradient(180deg, #eef2ff 0%, var(--bg) 40%);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 36px auto;
+      padding: 28px;
+      background: var(--card);
+      box-shadow: 0 10px 30px rgba(16, 24, 40, 0.06);
+      border-radius: 12px;
+      border: 1px solid rgba(15, 23, 42, 0.04);
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.5rem;
+    }
+
+    header p.lead {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    /* main layout: single column stack for small screens,
+       content cards are full-width; use internal two-column groups when needed */
+    .grid {
+      display: grid;
+      gap: 20px;
+    }
+
+    .card {
+      padding: 18px;
+      border-radius: 12px;
+      background: linear-gradient(180deg, #fff, #fbfdff);
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+      border: 1px solid rgba(15, 23, 42, 0.03);
+    }
+
+    h2 {
+      font-size: 1.05rem;
+      margin: 0 0 10px;
+      color: var(--text);
+    }
+
+    p {
+      margin: 8px 0;
+      line-height: 1.6;
+      color: #1f2937;
+    }
+
+    .commands pre {
+      background: #0f1724;
+      color: #e6eef8;
+      padding: 12px;
+      border-radius: 10px;
+      overflow: auto;
+      font-family: var(--mono);
+      font-size: 0.95rem;
+      margin: 8px 0;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .run-btn {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      padding: 9px 14px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 700;
+      box-shadow: 0 6px 14px rgba(37, 99, 235, 0.12);
+    }
+
+    .note {
+      background: #fff7ed;
+      border-left: 4px solid #f59e0b;
+      padding: 10px;
+      border-radius: 8px;
+      color: #92400e;
+    }
+
+    /* reusable two-column rows inside cards */
+    .two-col {
+      display: flex;
+      gap: 18px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    .two-col .col {
+      flex: 1;
+      min-width: 220px;
+    }
+
+    .two-col .aside {
+      flex-shrink: 0;
+      width: 320px;
+      max-width: 40%;
+    }
+
+    /* compact image grid */
+    .image-stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .image-stack img {
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+      display: block;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(2, 6, 23, 0.08);
+      transition: transform .14s ease, box-shadow .14s ease;
+    }
+
+    .image-stack img:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 18px 42px rgba(2, 6, 23, 0.12);
+    }
+
+    /* lightbox */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(2, 6, 23, 0.7);
+      padding: 24px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity .18s ease;
+      z-index: 1200;
+    }
+
+    .lightbox[aria-hidden="false"] {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .lightbox .panel {
+      max-width: 1200px;
+      width: 100%;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .lightbox img {
+      max-width: 100%;
+      max-height: 82vh;
+      border-radius: 10px;
+      box-shadow: 0 18px 46px rgba(2, 6, 23, 0.6);
+      background: #fff;
+    }
+
+    .lightbox .caption {
+      color: #fff;
+      font-size: 0.95rem;
+      text-align: center;
+    }
+
+    .lightbox .close {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      background: transparent;
+      border: 0;
+      color: #fff;
+      font-size: 28px;
+      cursor: pointer;
+      padding: 8px;
+    }
+
+    footer {
+      margin-top: 22px;
+      font-size: 0.9rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    /* responsive tweaks */
+    @media(min-width:980px) {
+      .container {
+        padding: 32px;
+      }
+
+      .two-col .aside {
+        width: 360px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>CppUmlClass</h1>
+        <p class="lead">C++ソースコードからUMLクラス図を生成するツール</p>
+      </div>
+    </header>
+
+    <main class="grid">
+      <section class="card">
+        <h2>概要</h2>
+        <p class="muted">指定したソースコードフォルダからクラス図を作成し、PlantUML等で出力します。</p>
+
+        <h2>インストール (Ubuntu)</h2>
+        <div class="commands">
+          <pre><code>sudo apt update
+sudo apt install -y ruby ruby-all-dev chromium-browser plantuml clang-format gcc
+sudo gem install CppUmlClass</code></pre>
+        </div>
+
+        <h2>起動方法</h2>
+        <p>以下を実行してください:</p>
+        <div class="commands">
+          <pre><code>start_cpp_uml_class.rb</code></pre>
+        </div>
+
+        <p class="note">メモ: root 権限が必要なコマンドには sudo を付けてください。</p>
+      </section>
+
+      <section class="card">
+        <h2>使い方</h2>
+        <div class="two-col">
+          <div class="col">
+            <p>対象のソースフォルダと出力ファイル名を指定して「実行」をクリックします。</p>
+            <p><a class="run-btn" href="#">実行 (GUI 起動)</a></p>
+
+            <h3 style="margin-top:12px;">コマンドラインでの実行例</h3>
+            <div class="commands">
+              <pre><code># ソースフォルダから PlantUML (.puml) を生成
+create_cpp_uml_class.rb cpp_source_dir out_plantuml.puml
+
+# 設定ファイルを指定して実行
+create_cpp_uml_class.rb -c config_file.json cpp_source_dir out_plantuml.puml
+
+# ヘルプ表示
+create_cpp_uml_class.rb --help</code></pre>
+            </div>
+
+            <p class="muted">ヒント: 生成した .puml は plantuml コマンドで PNG/SVG に変換できます。</p>
+          </div>
+
+          <div class="aside image-stack" aria-hidden="false">
+            <img src="img/start.png" alt="起動画面" data-large="img/start.png" data-caption="起動画面 — 入力フォームにフォルダと出力先を指定" />
+            <figcaption class="muted" style="text-align:center">起動画面（クリックで拡大）</figcaption>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>画面例</h2>
+        <div class="two-col">
+          <div class="col">
+            <p class="muted">主要な画面例です。画像をクリックで拡大表示します。</p>
+            <ul>
+              <li><strong>起動画面</strong>: 入力フォームにフォルダと出力先を指定する画面。</li>
+              <li><strong>クラス図出力例</strong>: 解析結果の UML クラス図。</li>
+            </ul>
+          </div>
+
+          <div class="aside image-stack">
+            <img src="img/class.png" alt="生成されたクラス図" data-large="img/class.png" data-caption="生成された UML クラス図の例" />
+            <img src="img/option.png" alt="設定画面" data-large="img/settings.png" data-caption="設定画面の例" />
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>設定画面</h2>
+        <div class="two-col">
+          <div class="col">
+            <p>設定画面では出力や解析の詳細を指定できます。主な項目:</p>
+            <ul>
+              <li><strong>PlantUMLコマンド</strong>: 実行コマンドをカスタマイズ</li>
+              <li><strong>出力形式</strong>: PlantUML / PNG / SVG 等</li>
+              <li><strong>解析範囲</strong>: サブフォルダ再帰・除外パターン</li>
+              <li><strong>フィルタ</strong>: 名前空間やクラスの除外/包含設定</li>
+              <li><strong>画像設定</strong>: 解像度・スケール・フォント</li>
+            </ul>
+            <p class="muted">設定はプロジェクト単位で保存でき、プリセットの読み書きに対応します。</p>
+            <p><a class="run-btn" href="#">設定 → 設定ダイアログ</a></p>
+          </div>
+
+          <div class="aside image-stack">
+            <img src="img/settings.png" alt="設定画面" data-large="img/settings.png" data-caption="設定画面 — オプション一覧" />
+            <figcaption class="muted" style="text-align:center">設定画面（クリックで拡大）</figcaption>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        <div class="muted">ドキュメント更新: <a href="https://github.com/kuwayama1971/CppUmlClass" target="_blank"
+            rel="noopener">公式リポジトリ</a>を参照してください。</div>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox" aria-hidden="true" role="dialog" aria-label="画像プレビュー">
+    <button class="close" id="lbClose" aria-label="閉じる">&times;</button>
+    <div class="panel" role="document">
+      <img id="lbImage" src="" alt="" />
+      <div class="caption" id="lbCaption"></div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const images = document.querySelectorAll('img[data-large]');
+      const lightbox = document.getElementById('lightbox');
+      const lbImage = document.getElementById('lbImage');
+      const lbCaption = document.getElementById('lbCaption');
+      const lbClose = document.getElementById('lbClose');
+
+      function open(src, alt, caption) {
+        lbImage.src = src;
+        lbImage.alt = alt || '';
+        lbCaption.textContent = caption || '';
+        lightbox.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+        lbClose && lbClose.focus();
+      }
+      function close() {
+        lightbox.setAttribute('aria-hidden', 'true');
+        lbImage.src = '';
+        lbCaption.textContent = '';
+        document.body.style.overflow = '';
+      }
+
+      images.forEach(img => {
+        const caption = img.dataset.caption || img.getAttribute('alt') || '';
+        img.addEventListener('click', () => open(img.dataset.large || img.src, img.alt, caption));
+        img.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(img.dataset.large || img.src, img.alt, caption); }
+        });
+        img.setAttribute('tabindex', '0');
+      });
+
+      // handlers
+      const closeBtn = document.getElementById('lbClose');
+      if (closeBtn) closeBtn.addEventListener('click', close);
+      lightbox.addEventListener('click', (e) => { if (e.target === lightbox) close(); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && lightbox.getAttribute('aria-hidden') === 'false') close(); });
+    })();
+  </script>
+</body>
+
+</html>
