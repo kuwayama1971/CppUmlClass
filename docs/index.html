@@ -243,14 +243,14 @@
     <header>
       <div>
         <h1>CppUmlClass</h1>
-        <p class="lead">C++ソースコードからUMLクラス図を生成するツール</p>
+        <p class="lead">CppUmlClassはC++ソースコードからUMLクラス図を生成するツールです。</p>
       </div>
     </header>
 
     <main class="grid">
       <section class="card">
         <h2>概要</h2>
-        <p class="muted">指定したソースコードフォルダからクラス図を作成し、PlantUML等で出力します。</p>
+        <p class="muted">指定したソースコードフォルダからクラス図を作成し、PlantUMLのテキストファイルで出力します。</p>
 
         <h2>インストール (Ubuntu)</h2>
         <div class="commands">
@@ -275,20 +275,6 @@ sudo gem install CppUmlClass</code></pre>
             <p>対象のソースフォルダと出力ファイル名を指定して「実行」をクリックします。</p>
             <p><a class="run-btn" href="#">実行 (GUI 起動)</a></p>
 
-            <h3 style="margin-top:12px;">コマンドラインでの実行例</h3>
-            <div class="commands">
-              <pre><code># ソースフォルダから PlantUML (.puml) を生成
-create_cpp_uml_class.rb cpp_source_dir out_plantuml.puml
-
-# 設定ファイルを指定して実行
-create_cpp_uml_class.rb -c config_file.json cpp_source_dir out_plantuml.puml
-
-# ヘルプ表示
-create_cpp_uml_class.rb --help</code></pre>
-            </div>
-
-            <p class="muted">ヒント: 生成した .puml は plantuml コマンドで PNG/SVG に変換できます。</p>
-
             <p class="muted">詳しい操作手順は下記の動画をご覧ください。</p>
             <div style="margin-top:12px;">
               <!-- 埋め込みでエラーが出る場合はサムネイルをリンクに置換 -->
@@ -300,6 +286,27 @@ create_cpp_uml_class.rb --help</code></pre>
                   style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.6);color:#fff;padding:12px;border-radius:50%;font-size:18px;">▶</span>
               </a>
             </div>
+
+            <h3 style="margin-top:12px;">コマンドラインでの実行例</h3>
+            <div class="commands">
+              <pre><code># ソースフォルダから PlantUML (.puml) を生成
+create_cpp_uml_class.rb cpp_source_dir out_plantuml.puml
+
+# 設定ファイルを指定して実行
+create_cpp_uml_class.rb -c config_file.json cpp_source_dir out_plantuml.puml
+# 設定ファイルを指定しない場合、デフォルトの設定ファイルが使用されます。
+# デフォルトの設定ファイル:~/CppUmlClass/config/setting.json
+
+# ヘルプ表示
+create_cpp_uml_class.rb --help
+Usage: create_cpp_uml_class.rb [options] cpp_source_directory out_file
+    -c config_file
+
+</code></pre>
+            </div>
+
+            <p class="muted">ヒント: 生成した .puml は plantuml コマンドで PNG/SVG に変換できます。</p>
+
           </div>
 
           <div class="aside image-stack" aria-hidden="false">
@@ -333,13 +340,15 @@ create_cpp_uml_class.rb --help</code></pre>
           <div class="col">
             <p>設定画面では出力や解析の詳細を指定できます。主な項目:</p>
             <ul>
-              <li><strong>PlantUMLコマンド</strong>: 実行コマンドをカスタマイズ</li>
-              <li><strong>出力形式</strong>: PlantUML / PNG / SVG 等</li>
-              <li><strong>解析範囲</strong>: サブフォルダ再帰・除外パターン</li>
-              <li><strong>フィルタ</strong>: 名前空間やクラスの除外/包含設定</li>
-              <li><strong>画像設定</strong>: 解像度・スケール・フォント</li>
+              <li><strong>PlantUML コマンド</strong>: PlantUMLの実行コマンドをカスタマイズ</li>
+              <li><strong>UMLを開くエディタ</strong>: 作成されたUMLを表示するエディタを指定</li>
+              <li><strong>デフォルトのクラス色</strong>: クラス図のデフォルト色を指定</li>
+              <li><strong>色を付けるクラスのソースパス1〜3</strong>: 色を付けるクラスのソースパス</li>
+              <li><strong>ソースパスと一致するクラス色1〜3</strong>: ソースパスと一致するクラスの色を指定</li>
+              <li><strong>除外するパス</strong>: UMLに変換する対象から除外するパス</li>
+              <li><strong>定義するdefineのリスト</strong>: プリプロセッサのdefineを指定</li>
             </ul>
-            <p class="muted">設定はプロジェクト単位で保存でき、プリセットの読み書きに対応します。</p>
+            <p class="muted">設定はプロジェクト単位で保存でき、よく使う設定はプリセットとして保存・読み込みできます。</p>
             <p><a class="run-btn" href="#">設定 → 設定ダイアログ</a></p>
           </div>
 
