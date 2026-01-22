@@ -172,10 +172,9 @@ body {
     background: #f6fbff;
     border-radius: 7px;
     min-height: 200px;
-    width: 95vw;
-    height: 75vh;
-    max-width: 95vw;
-    max-height: 90vh;
+    width: 98vw;
+    height: calc(100vh - 210px);
+    max-width: 98vw;
     box-shadow: 0 1px 8px #b6d6f677;
     margin-top: 4px;
     color: #b0bec5;
@@ -185,7 +184,7 @@ body {
     margin-right: 1px;
     display: block;
     padding: 1px 1px;
-
+    box-sizing: border-box;
 }
 
 ul.log {
