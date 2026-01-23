@@ -9,70 +9,157 @@
   <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
-  <!-- jQuery & jQuery UI -->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-  <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+  <!-- Vue.js 3 -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
-  <script src="js/main.js"></script>
   <link rel="stylesheet" href="css/index.css" type="text/css">
+  <style>[v-cloak] { display: none; }</style>
 </head>
 
 <body>
-  <header class="app-header">
-    <span class="material-icons">developer_board</span>
-    <span class="app-title">CppUMLClass</span>
-  </header>
+  <div id="app" v-cloak>
+    <header class="app-header">
+      <span class="material-icons">developer_board</span>
+      <span class="app-title">CppUMLClass</span>
+    </header>
 
-  <!-- menu -->
-  <ul class="menu">
-    <li><a href="#" id="exec"><span class="material-icons" style="vertical-align:middle;">play_arrow</span> 実行</a></li>
-    <li><a href="#" id="stop"><span class="material-icons" style="vertical-align:middle;">stop</span> 停止</a></li>
-    <li>
-      <span style="display:flex;align-items:center;gap:4px;cursor:pointer;">
-        <span class="material-icons" style="vertical-align:middle;">settings</span>
-        設定
-      </span>
-      <ul class="menuSub">
-        <li><a href="#" id="setting">設定ダイアログ</a></li>
-        <li><a href="#" id="save_setting">設定保存</a></li>
-        <li><a href="#" id="load_setting">設定読み込み</a></li>
-      </ul>
-    </li>
-  </ul>
+    <!-- menu -->
+    <ul class="menu">
+      <li><a href="#" @click.prevent="exec"><span class="material-icons" style="vertical-align:middle;">play_arrow</span> 実行</a></li>
+      <li><a href="#" @click.prevent="stop"><span class="material-icons" style="vertical-align:middle;">stop</span> 停止</a></li>
+      <li><a href="#" @click.prevent="openFile" :class="{ disabled: !hasExecuted }"><span class="material-icons" style="vertical-align:middle;">description</span> エディタ表示</a></li>
+      <li>
+        <span style="display:flex;align-items:center;gap:4px;cursor:pointer;">
+          <span class="material-icons" style="vertical-align:middle;">settings</span>
+          設定
+        </span>
+        <ul class="menuSub">
+          <li><a href="#" @click.prevent="openSettingDialog">設定ダイアログ</a></li>
+          <li><a href="#" @click.prevent="saveSetting">設定保存</a></li>
+          <li><a href="#" @click.prevent="loadSetting">設定読み込み</a></li>
+        </ul>
+      </li>
+    </ul>
 
-  <section class="main-content">
-    <div id="msg_dialog" style="display:none;">
-      <div id="msg_text">message</div>
-    </div>
-    <div id="setting_dialog" style="display:none;">
-      <dl id="wrap"></dl>
-    </div>
-
-    <!-- 入力行: 入力ディレクトリ/ファイル、検索 -->
-    <div class="input-area">
-      <div class="input-row">
-        <input class="inarea" type="search" id="inDir" name="inDir" placeholder="入力フォルダ">
-        <div id="dialog1" style="display:none;">
-          <input class="inarea" type="search" name="search_str" id="search_str" placeholder="ファイル/ディレクトリ検索...">
+    <section class="main-content">
+      
+      <!-- 入力行: 入力ディレクトリ/ファイル、検索 -->
+      <div class="input-area">
+        <div class="input-row">
+          <div class="autocomplete-container" ref="mainInDirRef">
+            <input class="inarea" type="search" v-model="inDir" placeholder="入力フォルダ" @input="onInputDir" @focus="onInputDir" @keydown="onMainInDirKeydown">
+            <ul v-if="dirSuggestions.length" class="autocomplete-suggestions">
+                <li v-for="item in dirSuggestions" @click="selectDirSuggestion(item)">{{ item.label }}</li>
+            </ul>
+          </div>
+          <input type="button" @click="openDirDialog" value="対象フォルダ" />
         </div>
-        <input type="button" id="select_dir" value="対象フォルダ" />
-      </div>
-      <div class="input-row">
-        <input class="inarea" type="search" id="outFile" name="outFile" placeholder="出力ファイル">
-        <div id="dialog2" style="display:none;">
-          <input class="inarea" type="search" name="search_str2" id="search_str2" placeholder="ファイル名検索...">
+        <div class="input-row">
+          <div class="autocomplete-container" ref="mainOutFileRef">
+            <input class="inarea" type="search" v-model="outFile" placeholder="出力ファイル" @input="onInputFile" @focus="onInputFile" @keydown="onMainOutFileKeydown">
+            <ul v-if="fileSuggestions.length" class="autocomplete-suggestions">
+                <li v-for="item in fileSuggestions" @click="selectFileSuggestion(item)">{{ item.label }}</li>
+            </ul>
+          </div>
+          <input type="button" @click="openFileDialog" value="出力ファイル" />
         </div>
-        <input type="button" id="select_file" value="出力ファイル" />
-        <input type="button" id="open_file" value="開く" />
+      </div>
+      <!-- ログ表示 -->
+      <div class="outarea" ref="outarea" @scroll="onScroll">
+        <ul class="log">
+           <li v-for="(line, index) in logs" :key="index" v-html="line"></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Message Dialog -->
+    <div v-if="msgDialog.visible" class="modal-overlay">
+      <div class="modal-dialog" style="width: 500px; height: 300px;">
+        <div class="modal-header">
+          <h3 class="modal-title">{{ msgDialog.title }}</h3>
+        </div>
+        <div class="modal-body" v-html="msgDialog.message" style="display:flex; flex-direction:column; align-items:flex-start;"></div>
+        <div class="modal-footer">
+          <button @click="closeMsgDialog">OK</button>
+        </div>
       </div>
     </div>
-    <!-- ログ表示 -->
-    <div class="outarea">
-      <ul name="log" id="log" class="log">
-      </ul>
+
+    <!-- Select Directory Dialog -->
+    <div v-if="dirDialog.visible" class="modal-overlay">
+      <div class="modal-dialog" style="width: 580px; height: 80vh;">
+        <div class="modal-header">
+          <h3 class="modal-title">Select Directory</h3>
+        </div>
+        <div class="modal-body modal-body-list">
+            <div class="autocomplete-container" >
+                <input class="inarea" type="search" v-model="dirDialog.search" placeholder="ファイル/ディレクトリ検索..." style="width:100%" @input="onDirDialogInput" @keydown="onDirDialogKeydown">
+                <ul v-if="dirDialog.suggestions.length" class="autocomplete-suggestions" ref="dirListRef">
+                    <li v-for="(item, index) in dirDialog.suggestions" :key="index" :class="{ active: index === dirDialog.selectedIndex }" @click="selectDirDialogSuggestion(item)">{{ item.label }}</li>
+                </ul>
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button @click="confirmDirDialog">OK</button>
+          <button @click="dirDialog.visible = false">Cancel</button>
+        </div>
+      </div>
     </div>
-  </section>
+
+    <!-- Select File Dialog -->
+    <div v-if="fileDialog.visible" class="modal-overlay">
+      <div class="modal-dialog" style="width: 580px; height: 80vh;">
+        <div class="modal-header">
+          <h3 class="modal-title">Select File</h3>
+        </div>
+        <div class="modal-body modal-body-list">
+            <div class="autocomplete-container" >
+                <input class="inarea" type="search" v-model="fileDialog.search" placeholder="ファイル名検索..." style="width:100%" @input="onFileDialogInput" @keydown="onFileDialogKeydown">
+                <ul v-if="fileDialog.suggestions.length" class="autocomplete-suggestions" ref="fileListRef">
+                    <li v-for="(item, index) in fileDialog.suggestions" :key="index" :class="{ active: index === fileDialog.selectedIndex }" @click="selectFileDialogSuggestion(item)">{{ item.label }}</li>
+                </ul>
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button @click="confirmFileDialog">OK</button>
+          <button @click="fileDialog.visible = false">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Setting Dialog -->
+    <div v-if="settingDialog.visible" class="modal-overlay">
+        <div class="modal-dialog" style="width: 650px; height: 600px;">
+          <div class="modal-header">
+            <h3 class="modal-title">Setting</h3>
+          </div>
+          <div class="modal-body">
+            <div v-for="(item, index) in settingDialog.items" :key="index" style="margin-bottom: 5px;">
+                <table style="width: 95%;">
+                    <tr>
+                        <td class="setting_name">{{ item.description }}</td>
+                        <td>
+                            <input v-if="item.type === 'input'" class="setting_value" type="text" v-model="item.value">
+                            <textarea v-else-if="item.type === 'textarea'" class="setting_value" rows="5" v-model="item.valueStr"></textarea>
+                            <input v-else-if="item.type === 'checkbox'" class="setting_checkbox" type="checkbox" v-model="item.value">
+                            <select v-else-if="item.type === 'select'" class="setting_value" v-model="item.value">
+                                <option v-for="opt in item.select" :value="opt">{{ opt }}</option>
+                            </select>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button @click="submitSetting">OK</button>
+            <button @click="settingDialog.visible = false">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+  </div>
+
+  <script src="js/main.js"></script>
 </body>
 
 </html>
